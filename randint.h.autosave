@@ -1,0 +1,10 @@
+#ifndef RANDINT_H
+#define RANDINT_H
+
+
+class Randint : public distribution{
+public:
+    Randint();
+};
+
+#endif // RANDINT_H

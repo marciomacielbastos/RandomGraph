@@ -1,0 +1,30 @@
+#include "mount_network.h"
+
+mount_network::mount_network()
+{
+
+}
+
+bool mount_network::is_connected(const std::vector<unsigned long> adj_matrix, unsigned long v, unsigned long w){
+    if(adj_matrix[v].size() <= adj_matrix[w].size()){
+        for(unsigned long int i = 0; i < adj_matrix[v].size(); i++){
+            if(adj_matrix[v][i] == w){
+                return true;
+            }
+        }
+    } else {
+        for(unsigned long int i = 0; i < adj_matrix[w].size(); i++){
+            if(adj_matrix[w][i] == v){
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+void mount_network::link(std::vector<unsigned long>& adj_matrix, unsigned long v, unsigned long w){
+    if(!is_connected){
+        adj_matrix[v].push_back(w);
+        adj_matrix[w].push_back(v);
+    }
+}

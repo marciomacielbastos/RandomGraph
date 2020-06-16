@@ -1,0 +1,254 @@
+#include "topology_builder.h"
+
+Topology_builder::Topology_builder(std::vector<unsigned long int> dl){
+    this->degree_1_counter = 0;
+    this->degree_list = dl;
+    this->g = Graph(dl.size());
+    pre_process();
+    agglutination();
+    speckle();
+}
+
+void Topology_builder::progress_bar(double progress){
+    unsigned int bar_width = 70;
+    std::cout << "[";
+    unsigned int pos = static_cast<unsigned int>(double(bar_width) * progress);
+    for (unsigned int i = 0; i < bar_width; ++i) {
+        if (i < pos) std::cout << "=";
+        else if (i == pos) std::cout << ">";
+        else std::cout << " ";
+    }
+    std::cout << "] " << static_cast<unsigned int>(progress * 100.0) << " %  \r";
+    std::cout.flush();
+    if(progress == 1){
+        std::cout << std::endl;
+    }
+}
+
+void Topology_builder::count_loose_ends(){
+    std::vector<unsigned long int> deg_vector;
+    for(unsigned long int i = 0; i < this->degree_list.size(); i++){
+        deg_vector.push_back(this->degree_list[this->degree_list.size() - i - 1]);
+    }
+    unsigned long int i = 0;
+    unsigned long int j;
+    this->n_of_loose_ends = 0;
+    while(i < deg_vector.size()){
+        j = deg_vector.size();
+        while((i < j) && (deg_vector[i] > 0)){
+            deg_vector[j]--;
+            if(deg_vector[j] == 0){
+                deg_vector.pop_back();
+            }
+            deg_vector[i]--;
+            j--;
+        }
+        this->n_of_loose_ends += deg_vector[i];
+        i++;
+    }
+}
+
+std::vector<unsigned long int> Topology_builder::create_unbonded_nodes(unsigned long int N) {
+    std::vector<unsigned long int> unbonded_nodes;
+    for(unsigned long int i = 0; i < N; i++){
+        if(degree_list[i] == 1){
+            this->degree_1_counter++;
+        }
+        else{
+            unbonded_nodes.push_back(i);
+        }
+    }
+    this->k_clique = unbonded_nodes.size() - 1;
+    return unbonded_nodes;
+}
+
+void Topology_builder::break_unbonded_nodes(std::vector<unsigned long int> &unbonded_nodes) {
+    while(!unbonded_nodes.empty()){
+        unsigned long int idx = unbonded_nodes.back();
+        unbonded_nodes.pop_back();
+        if(this->degree_list[idx] > this->k_clique){
+            this->unbonded_nodes_g.push_back(idx);
+        }
+        else {
+            this->unbonded_nodes_l.push_back(idx);
+        }
+    }
+}
+
+unsigned long int Topology_builder::one_deg_pop() {
+    unsigned long int v = this->degree_1_counter;
+    this->degree_1_counter--;
+    return v;
+}
+
+void Topology_builder::update_degree(unsigned long int v) {
+    this->degree_list[v]--;
+}
+
+bool Topology_builder::link(unsigned long v, unsigned long w) {
+    if (g.link(v, w)) {
+        update_degree(v);
+        update_degree(w);
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+void Topology_builder::speckle_overbond() {
+    unsigned long int v, w, idx;
+    Uniform u;
+    while ((this->degree_1_counter > 0) && (!this->unbonded_nodes_g.empty())) {
+        idx = u.randint(this->unbonded_nodes_g.size());
+        v = one_deg_pop();
+        w = this->unbonded_nodes_g[idx];
+        link(v, w);
+        if (this->degree_list[w] <= this->k_clique) {
+            this->unbonded_nodes_l.push_back(w);
+            smart_pop(this->unbonded_nodes_g, idx);
+        }
+    }
+}
+
+void Topology_builder::pre_process() {
+    unsigned long int N = this->degree_list.size();
+    std::sort (this->degree_list.begin(), this->degree_list.end());
+    std::vector<unsigned long int> unbonded_nodes = create_unbonded_nodes(N);
+    break_unbonded_nodes(unbonded_nodes);
+    speckle_overbond();
+}
+
+unsigned long int Topology_builder::smart_pop(std::vector<unsigned long int> &list, unsigned long int idx) {
+    unsigned long int temp = list[idx];
+    list[idx] = list.back();
+    list.pop_back();
+    return temp;
+}
+
+unsigned long int Topology_builder::un_pop(unsigned long int w_idx) {
+    unsigned long int un_l_size = this->unbonded_nodes_l.size();
+    if (w_idx < un_l_size) {
+        return smart_pop(this->unbonded_nodes_l, w_idx);
+    }
+    else {
+        w_idx = w_idx - un_l_size;
+        return smart_pop(this->unbonded_nodes_g, w_idx);
+    }
+}
+
+void Topology_builder::bn_push(unsigned long int w) {
+    for(unsigned long int i = 0; i < this->degree_list[w] ; i++) {
+            this->bonded_nodes.push_back(w);
+    }
+}
+
+void Topology_builder::update_bn(unsigned long int v_idx, unsigned long int w_idx) {  
+    if (v_idx < w_idx)  {
+        smart_pop(this->bonded_nodes, w_idx);
+        smart_pop(this->bonded_nodes, v_idx);
+    }
+    else if (w_idx < v_idx) {
+        smart_pop(this->bonded_nodes, v_idx);
+        smart_pop(this->bonded_nodes, w_idx);
+    }
+}
+
+void Topology_builder::agglutination_underbond() {
+    Uniform u;
+    unsigned long int w, v, w_idx, v_idx;
+    unsigned long int bn_size = this->bonded_nodes.size();
+    unsigned long int un_size = this->unbonded_nodes_l.size();
+    while (un_size > 0) {
+        // No bonded nodes
+        if (bn_size == 0) {
+            w_idx = u.randint(un_size);
+            w = un_pop(w_idx);
+            bn_push(w);
+            bn_size = this->bonded_nodes.size();
+        }
+
+        else {
+           v_idx = u.randint(bn_size);
+           v = this->bonded_nodes[v_idx];
+           w_idx = u.randint(un_size);
+           w = un_pop(w_idx);
+           link(v, w);
+           bn_push(w);
+           bn_size = this->bonded_nodes.size();
+           update_bn(v_idx, w_idx);
+        }
+        un_size--;
+    }
+}
+
+void Topology_builder::speckle(){
+    unsigned long int v, w, w_idx;
+    unsigned long int bn_size = this->bonded_nodes_l.size() + this->bonded_nodes_g.size();
+    Uniform u;
+    while (this->degree_1_counter > 0) {
+        v = one_deg_pop();
+        w_idx = u.randint(bn_size);
+        if (w_idx < this->bonded_nodes_l.size()) {
+            w = this->bonded_nodes_l[w_idx];
+        }
+
+        else {
+            w = this->bonded_nodes_g[w_idx - this->bonded_nodes_l.size()];
+        }
+        link(v, w);
+        bn_pop(w);
+        bn_size = this->bonded_nodes_l.size() + this->bonded_nodes_g.size();
+    }
+}
+
+void Topology_builder::agglutination_overbond() {
+    Uniform u;
+    unsigned long int w, v, w_idx, v_idx;
+    unsigned long int bn_size = this->bonded_nodes.size();
+    unsigned long int un_l_size = this->unbonded_nodes_l.size();
+    unsigned long int un_g_size = this->unbonded_nodes_g.size();
+    unsigned long int un_size = un_l_size + un_g_size;
+    while (un_g_size > 0) {
+        // No bonded nodes
+        if (bn_size == 0) {
+            w_idx = u.randint(un_size);
+            w = un_pop(w_idx);
+            bn_push(w);
+            bn_size = this->bonded_nodes.size();
+        }
+
+        else {
+           v_idx = u.randint(bn_size);
+           v = this->bonded_nodes[v_idx];
+           if (this->degree_list[v] > this->k_clique) {
+               w_idx = u.randint(un_l_size, un_size);
+               w = un_pop(w_idx);
+           }
+           else {
+               w_idx = u.randint(un_size);
+               w = un_pop(w_idx);
+           }
+           link(v, w);
+           bn_push(w);
+           bn_size = this->bonded_nodes.size();
+           update_bn(v_idx, w_idx);
+        }
+        un_g_size = this->unbonded_nodes_g.size();
+    }
+}
+
+
+void Topology_builder::agglutination(){
+    //There ain't no overbond nodes
+    if(this->unbonded_nodes_g.size() == 0){
+        agglutination_underbond();
+        speckle();
+    }
+    else {
+        agglutination_overbond();
+        agglutination_underbond();
+    }
+}
+
+
