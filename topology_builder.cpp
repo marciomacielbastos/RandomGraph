@@ -238,6 +238,13 @@ void Topology_builder::agglutination_overbond() {
     }
 }
 
+void Topology_builder::remove_duplicates(std::vector<unsigned long int> & vec){
+    std::set<unsigned long int> s;
+    unsigned long int  size = vec.size();
+    for( unsigned i = 0; i < size; ++i ) s.insert( vec[i] );
+    vec.assign( s.begin(), s.end() );
+}
+
 
 void Topology_builder::agglutination(){
     //There ain't no overbond nodes
@@ -249,6 +256,31 @@ void Topology_builder::agglutination(){
         agglutination_overbond();
         agglutination_underbond();
     }
+    remove_duplicates(this->bonded_nodes);
 }
 
 
+void Topology_builder::other_connections(){
+    Uniform u;
+    unsigned long int idx_v, idx_w, v, w, size;
+
+    while (this->bonded_nodes.size() > 1) {
+        unsigned long int i = 0;
+        size = this->bonded_nodes.size();
+        idx_v = u.randint(size);
+        v = this->bonded_nodes[idx_v];
+        while((this->degree_list[v] > 0) || i < size){
+            idx_w = u.randint(size);
+            w = this->bonded_nodes[idx_w];
+            if(link(v, w)) {
+                this->degree_list[v]--;
+                this->degree_list[w]--;
+                if (this->degree_list[w] == 0) {
+                    smart_pop(this->bonded_nodes, idx_w);
+                }
+                i++;
+            }
+        }
+        smart_pop(this->bonded_nodes, idx_v);
+    }
+}

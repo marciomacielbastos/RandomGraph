@@ -1,6 +1,7 @@
 #ifndef TOPOLOGY_BUILDER_H
 #define TOPOLOGY_BUILDER_H
 #include <vector>
+#include <set>
 #include <graph.h>
 #include <iostream>
 #include <algorithm>
@@ -35,8 +36,7 @@ private:
     void update_bn(unsigned long int v_idx, unsigned long int w_idx);
     void speckle();
     void agglutination_overbond();
-
-    void count_loose_ends();
+    void remove_duplicates(std::vector<unsigned long int> & vec);
 
     void other_connections();
     void bn_pop(unsigned long int idx);
