@@ -1,12 +1,25 @@
 #include "topology_builder.h"
 
+
+/*
+ * Factory Constructor of the Graph Topology
+ * In this constructor we receive a list of nodes' degree, and build the topology through 3 stages.
+ * First, pre-process. Dividing the nodes with degree one, degree below and degree above the equivalent clique mean degree (ECMD),
+ * Then we spread the one degree nodes (ODN) through the nodes above the ECMD, until no node stays above the ECMD or none ODN remains.
+ * Second, agglutination. In this method, we randomly create a path between each node in the graph;
+ * Finally we randomly complete the missing links leaving the minimum number of loose ends.
+*/
 Topology_builder::Topology_builder(std::vector<unsigned long int> dl){
     this->degree_1_counter = 0;
     this->degree_list = dl;
     this->g = Graph(dl.size());
+    std::cout << "pre-process()" << std::endl;
     pre_process();
+    std::cout << "agglutination()" << std::endl;
     agglutination();
-    speckle();
+    std::cout << "other_connections()" << std::endl;
+    other_connections();
+    std::cout << "finish" << std::endl;
 }
 
 void Topology_builder::progress_bar(double progress){
@@ -22,29 +35,6 @@ void Topology_builder::progress_bar(double progress){
     std::cout.flush();
     if(progress == 1){
         std::cout << std::endl;
-    }
-}
-
-void Topology_builder::count_loose_ends(){
-    std::vector<unsigned long int> deg_vector;
-    for(unsigned long int i = 0; i < this->degree_list.size(); i++){
-        deg_vector.push_back(this->degree_list[this->degree_list.size() - i - 1]);
-    }
-    unsigned long int i = 0;
-    unsigned long int j;
-    this->n_of_loose_ends = 0;
-    while(i < deg_vector.size()){
-        j = deg_vector.size();
-        while((i < j) && (deg_vector[i] > 0)){
-            deg_vector[j]--;
-            if(deg_vector[j] == 0){
-                deg_vector.pop_back();
-            }
-            deg_vector[i]--;
-            j--;
-        }
-        this->n_of_loose_ends += deg_vector[i];
-        i++;
     }
 }
 
@@ -76,7 +66,7 @@ void Topology_builder::break_unbonded_nodes(std::vector<unsigned long int> &unbo
 }
 
 unsigned long int Topology_builder::one_deg_pop() {
-    unsigned long int v = this->degree_1_counter;
+    unsigned long int v = this->degree_1_counter - 1;
     this->degree_1_counter--;
     return v;
 }
@@ -138,23 +128,26 @@ unsigned long int Topology_builder::un_pop(unsigned long int w_idx) {
 }
 
 void Topology_builder::bn_push(unsigned long int w) {
-    for(unsigned long int i = 0; i < this->degree_list[w] ; i++) {
-            this->bonded_nodes.push_back(w);
-    }
+    this->bonded_nodes.push_back(w);
 }
 
-void Topology_builder::update_bn(unsigned long int v_idx, unsigned long int w_idx) {  
+void Topology_builder::update_bn(unsigned long int v_idx) {
+    unsigned long int deg = this->degree_list[this->bonded_nodes[v_idx]];
+    if(deg == 0) smart_pop(this->bonded_nodes, v_idx);
+}
+
+void Topology_builder::update_bn(unsigned long int v_idx, unsigned long int w_idx) {
     if (v_idx < w_idx)  {
-        smart_pop(this->bonded_nodes, w_idx);
-        smart_pop(this->bonded_nodes, v_idx);
+        update_bn(w_idx);
+        update_bn(v_idx);
     }
     else if (w_idx < v_idx) {
-        smart_pop(this->bonded_nodes, v_idx);
-        smart_pop(this->bonded_nodes, w_idx);
+        update_bn(v_idx);
+        update_bn(w_idx);
     }
 }
 
-void Topology_builder::agglutination_underbond() {
+void Topology_builder::agglutination_underclique() {
     Uniform u;
     unsigned long int w, v, w_idx, v_idx;
     unsigned long int bn_size = this->bonded_nodes.size();
@@ -176,7 +169,7 @@ void Topology_builder::agglutination_underbond() {
            link(v, w);
            bn_push(w);
            bn_size = this->bonded_nodes.size();
-           update_bn(v_idx, w_idx);
+           update_bn(v_idx);
         }
         un_size--;
     }
@@ -184,103 +177,102 @@ void Topology_builder::agglutination_underbond() {
 
 void Topology_builder::speckle(){
     unsigned long int v, w, w_idx;
-    unsigned long int bn_size = this->bonded_nodes_l.size() + this->bonded_nodes_g.size();
+    unsigned long int bn_size = this->bonded_nodes.size();
     Uniform u;
     while (this->degree_1_counter > 0) {
         v = one_deg_pop();
         w_idx = u.randint(bn_size);
-        if (w_idx < this->bonded_nodes_l.size()) {
-            w = this->bonded_nodes_l[w_idx];
-        }
-
-        else {
-            w = this->bonded_nodes_g[w_idx - this->bonded_nodes_l.size()];
-        }
+        w = this->bonded_nodes[w_idx];
         link(v, w);
-        bn_pop(w);
-        bn_size = this->bonded_nodes_l.size() + this->bonded_nodes_g.size();
+        update_bn(w_idx);
+        bn_size = this->bonded_nodes.size();
     }
 }
 
-void Topology_builder::agglutination_overbond() {
+void Topology_builder::agglutination_overclique() {
     Uniform u;
     unsigned long int w, v, w_idx, v_idx;
     unsigned long int bn_size = this->bonded_nodes.size();
     unsigned long int un_l_size = this->unbonded_nodes_l.size();
     unsigned long int un_g_size = this->unbonded_nodes_g.size();
     unsigned long int un_size = un_l_size + un_g_size;
-    while (un_g_size > 0) {
-        // No bonded nodes
+    unsigned long int num_overclique = un_g_size;
+    // As long as there are nodes with degree above ECMD or remains nodes in LU do:
+    while ((num_overclique > 0) && (un_size > 0)) {
+        // If no node was agglutinated, randomly pop from the list of unbonded (LU) and push in the list of bonded nodes (LB).
         if (bn_size == 0) {
             w_idx = u.randint(un_size);
             w = un_pop(w_idx);
             bn_push(w);
             bn_size = this->bonded_nodes.size();
         }
-
+        //If the are nodes in the LB, randomly choose one from LB, and link to another in LU, according to the procedure:
         else {
            v_idx = u.randint(bn_size);
            v = this->bonded_nodes[v_idx];
-           if (this->degree_list[v] > this->k_clique) {
+           // If the degree of the node poped from LB is bellow or equal ECMD, then select a random node v from the {v in LU | deg(v) above ECMD};
+           if (this->degree_list[v] <= this->k_clique) {
                w_idx = u.randint(un_l_size, un_size);
                w = un_pop(w_idx);
            }
+           // Else any link is allowed, thus select any node from LU
            else {
                w_idx = u.randint(un_size);
                w = un_pop(w_idx);
            }
+           //If the nodes' degree are no longer above ECMD, then reduce num_overclique.
+           if((this->degree_list[v] > this->k_clique) && (this->degree_list[v] - 1 <= this->k_clique)) num_overclique--;
+           if((this->degree_list[w] > this->k_clique) && (this->degree_list[w] - 1 <= this->k_clique)) num_overclique--;
            link(v, w);
            bn_push(w);
            bn_size = this->bonded_nodes.size();
-           update_bn(v_idx, w_idx);
+           update_bn(v_idx, bn_size - 1);
         }
+        //Update the size of the LU lists.
+        un_l_size = this->unbonded_nodes_l.size();
         un_g_size = this->unbonded_nodes_g.size();
+        un_size = un_l_size + un_g_size;
     }
 }
-
-void Topology_builder::remove_duplicates(std::vector<unsigned long int> & vec){
-    std::set<unsigned long int> s;
-    unsigned long int  size = vec.size();
-    for( unsigned i = 0; i < size; ++i ) s.insert( vec[i] );
-    vec.assign( s.begin(), s.end() );
-}
-
 
 void Topology_builder::agglutination(){
     //There ain't no overbond nodes
     if(this->unbonded_nodes_g.size() == 0){
-        agglutination_underbond();
+        agglutination_underclique();
+        //Speckle ODN through the just linked graph
         speckle();
     }
     else {
-        agglutination_overbond();
-        agglutination_underbond();
+        agglutination_overclique();
+        agglutination_underclique();
     }
-    remove_duplicates(this->bonded_nodes);
 }
 
 
 void Topology_builder::other_connections(){
     Uniform u;
     unsigned long int idx_v, idx_w, v, w, size;
-
+    size = this->bonded_nodes.size();
     while (this->bonded_nodes.size() > 1) {
-        unsigned long int i = 0;
-        size = this->bonded_nodes.size();
+        unsigned long int i = 0;        
         idx_v = u.randint(size);
         v = this->bonded_nodes[idx_v];
-        while((this->degree_list[v] > 0) || i < size){
+        if (this->degree_list[v] == 0) {
+            smart_pop(this->bonded_nodes, idx_v);
+            continue;
+        }
+        std::vector<bool> valuation(size);
+        while((this->degree_list[v] > 0) && i < size){
             idx_w = u.randint(size);
             w = this->bonded_nodes[idx_w];
-            if(link(v, w)) {
-                this->degree_list[v]--;
-                this->degree_list[w]--;
-                if (this->degree_list[w] == 0) {
-                    smart_pop(this->bonded_nodes, idx_w);
-                }
+            if(!valuation[idx_w]){
+                std::vector<bool>::reference ref = valuation[idx_w];
+                ref = true;
                 i++;
             }
+            link(v, w);
         }
         smart_pop(this->bonded_nodes, idx_v);
+        size = this->bonded_nodes.size();
     }
 }

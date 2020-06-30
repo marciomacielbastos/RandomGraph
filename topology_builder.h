@@ -30,12 +30,13 @@ private:
 
 
     void agglutination();
-    void agglutination_underbond();
+    void agglutination_underclique();
     unsigned long int un_pop(unsigned long int idx);
     void bn_push(unsigned long int w);
+    void update_bn(unsigned long int v_idx);
     void update_bn(unsigned long int v_idx, unsigned long int w_idx);
     void speckle();
-    void agglutination_overbond();
+    void agglutination_overclique();
     void remove_duplicates(std::vector<unsigned long int> & vec);
 
     void other_connections();

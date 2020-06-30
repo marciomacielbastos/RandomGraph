@@ -5,10 +5,16 @@ Uniform::Uniform(){
 }
 
 unsigned long int Uniform::randint(unsigned long xmin, unsigned long xmax){
-    std::random_device rd;  //Will be used to obtain a seed for the random number engine
-    std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
-    std::uniform_int_distribution<> dis(xmin, xmax);
-    return dis(gen);
+    if(xmin < xmax -1){
+        std::random_device rd;  //Will be used to obtain a seed for the random number engine
+        std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
+        std::uniform_int_distribution<> dis(xmin, xmax - 1);
+        return dis(gen);
+    }
+    else {
+        return xmin;
+    }
+
 }
 
 unsigned long int Uniform::randint(unsigned long int xmax){
