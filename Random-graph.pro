@@ -21,7 +21,8 @@ SOURCES += main.cpp \
     quick_search.cpp \
     graph.cpp \
     percolation.cpp \
-    topology_builder.cpp
+    topology_builder.cpp \
+    unionfind.cpp
 
 HEADERS += \
     q_exponential.h \
@@ -30,4 +31,5 @@ HEADERS += \
     quick_search.h \
     graph.h \
     percolation.h \
-    topology_builder.h
+    topology_builder.h \
+    unionfind.h

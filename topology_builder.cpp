@@ -22,21 +22,21 @@ Topology_builder::Topology_builder(std::vector<unsigned long int> dl){
     std::cout << "finish" << std::endl;
 }
 
-void Topology_builder::progress_bar(double progress){
-    unsigned int bar_width = 70;
-    std::cout << "[";
-    unsigned int pos = static_cast<unsigned int>(double(bar_width) * progress);
-    for (unsigned int i = 0; i < bar_width; ++i) {
-        if (i < pos) std::cout << "=";
-        else if (i == pos) std::cout << ">";
-        else std::cout << " ";
-    }
-    std::cout << "] " << static_cast<unsigned int>(progress * 100.0) << " %  \r";
-    std::cout.flush();
-    if(progress == 1){
-        std::cout << std::endl;
-    }
-}
+//void Topology_builder::progress_bar(double progress){
+//    unsigned int bar_width = 70;
+//    std::cout << "[";
+//    unsigned int pos = static_cast<unsigned int>(double(bar_width) * progress);
+//    for (unsigned int i = 0; i < bar_width; ++i) {
+//        if (i < pos) std::cout << "=";
+//        else if (i == pos) std::cout << ">";
+//        else std::cout << " ";
+//    }
+//    std::cout << "] " << static_cast<unsigned int>(progress * 100.0) << " %  \r";
+//    std::cout.flush();
+//    if(progress == 1){
+//        std::cout << std::endl;
+//    }
+//}
 
 std::vector<unsigned long int> Topology_builder::create_unbonded_nodes(unsigned long int N) {
     std::vector<unsigned long int> unbonded_nodes;
@@ -239,7 +239,7 @@ void Topology_builder::agglutination(){
     //There ain't no overbond nodes
     if(this->unbonded_nodes_g.size() == 0){
         agglutination_underclique();
-        //Speckle ODN through the just linked graph
+        //Speckle ODN through tree like graph
         speckle();
     }
     else {
@@ -275,4 +275,8 @@ void Topology_builder::other_connections(){
         smart_pop(this->bonded_nodes, idx_v);
         size = this->bonded_nodes.size();
     }
+}
+
+Graph Topology_builder::get_g(){
+    return this->g;
 }

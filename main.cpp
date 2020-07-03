@@ -25,6 +25,26 @@ void write_random_vector(const std::string& filename, std::vector<unsigned long 
     myfile.close();
 }
 
+void write_g(const std::string& fn1, const std::string& fn2, Graph graph){
+    std::ofstream myfile;
+    myfile.open (fn1);
+    std::vector<unsigned long int> dist = graph.get_real_dist();
+    std::vector<std::pair<unsigned long int, unsigned long int>> link_list = graph.get_link_list();
+    while (!dist.empty()) {
+        unsigned long int deg = dist.back();
+        dist.pop_back();
+        myfile << deg << std::endl;
+    }
+    myfile.close();
+    myfile.open (fn2);
+    while (!link_list.empty()) {
+        std::pair<unsigned long int, unsigned long int> link = link_list.back();
+        link_list.pop_back();
+        myfile << link.first << "," << link.second << std::endl;
+    }
+    myfile.close();
+}
+
 void write_links(const std::string& filename, std::vector<std::pair<unsigned long int, unsigned long int>> list){
     std::ofstream myfile;
     myfile.open (filename);
@@ -46,25 +66,23 @@ void write_links(const std::string& filename, std::vector<std::pair<unsigned lon
 
 int main(int argc, char *argv[]){
 //    std::bitset<1024> foo;
-    std::vector<unsigned long int> test = {1, 1, 1, 1, 1, 3, 3, 5, 6, 8};
-    Topology_builder tb = Topology_builder(test);
+    std::vector<unsigned long int> test;
+
 //    for(const int &i : test){
 //        std::cout<< test[1] << std::endl;
 //    }
-//    unsigned long int  N = static_cast<unsigned long int>(10240000);
-//    double gamma = 2.5;
-//    double lambda = 1.7;
-//    double q = (gamma + 1) / gamma;
-//    q_Exponential q_exp = q_Exponential(lambda, q, 1, N);
-//    unsigned long int cnt = 0;
-//    for(int j = 0; j < 10240000; j++){
-//        unsigned long int val = q_exp.randint();
-//        if(val > 1){
-//            cnt++;
-//        }
-//    std::cout << cnt << '\n';
-//    }
-
+    unsigned long int  N = static_cast<unsigned long int>(102400);
+    double gamma = 2.5;
+    double lambda = 1.7;
+    double q = (gamma + 1) / gamma;
+    q_Exponential q_exp = q_Exponential(lambda, q, 1, N - 1);
+    for(int j = 0; j < N; j++){
+        unsigned long int val = q_exp.randint();
+        test.push_back(val);
+    }
+    Topology_builder tb = Topology_builder(test);
+    Graph g = tb.get_g();
+    write_g("/home/marcio/Random-graph/output/degs.txt", "/home/marcio/Random-graph/output/links.txt", g);
 //    std::vector<std::vector<bool>> bar;
 //    for(unsigned long int j=0; j < 102400; j++){
 //        std::vector<bool> foo;

@@ -40,11 +40,12 @@ private:
     void remove_duplicates(std::vector<unsigned long int> & vec);
 
     void other_connections();
-    void bn_pop(unsigned long int idx);
+    void bn_pop(unsigned long int idx);   
 
 
 public:
     Topology_builder(std::vector<unsigned long int> dl);
+    Graph get_g();
 
 };
 

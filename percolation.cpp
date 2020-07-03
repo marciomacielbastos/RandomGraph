@@ -56,3 +56,20 @@ std::vector<unsigned long int> Percolation::get_degree_list(){
 std::vector<std::pair<unsigned long int, unsigned long int>> Percolation::get_link_list(){
     return this->g.get_link_list();
 }
+
+/*************************************************************************/
+/*                         To write <l> graphs                           */
+/*************************************************************************/
+
+UnionFind Percolation::mount_geodesical_stats(Rede rd){
+    std::vector<std::pair<unsigned long int, unsigned long int>> list = rd.get_list_of_links();
+    UnionFind uf = UnionFind(rd.get_number_of_nodes());
+    while (list.size() > 0) {
+        std::pair<unsigned long int, unsigned long int> pair = list[list.size() - 1];
+        // Union the nodes of this link
+        uf.union_(pair.first, pair.second);
+        // Remove the link from the list of links
+        list.pop_back();
+    }
+    return uf;
+}

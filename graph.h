@@ -20,6 +20,7 @@ public:
     bool is_connected(unsigned long v, unsigned long w);
     bool link(unsigned long v, unsigned long w);
     std::vector<std::pair<unsigned long int, unsigned long int>> get_link_list();
+    std::vector<unsigned long int> get_real_dist();
 };
 
 #endif // MOUNT_NETWORK_H

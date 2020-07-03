@@ -51,3 +51,11 @@ bool Graph::link(unsigned long v, unsigned long w){
 std::vector<std::pair<unsigned long int, unsigned long int>> Graph::get_link_list(){
     return this->link_list;
 }
+
+std::vector<unsigned long int> Graph::get_real_dist(){
+    std::vector<unsigned long int> dist;
+    for (unsigned long int i=0; i < this->adj_matrix.size(); i++) {
+        dist.push_back(this->adj_matrix[i].size());
+    }
+    return dist;
+}
