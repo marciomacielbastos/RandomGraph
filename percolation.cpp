@@ -39,12 +39,11 @@ std::vector<unsigned long int> Percolation::get_degree_list(){
 /*                         Calculus of <l>                         */
 /*******************************************************************/
 
-double Percolation::geodesical_distance_computation(double& mean_l, std::vector<std::vector<unsigned long int>> adj_matrix){
+void Percolation::t_geodesical_distance(double& mean_l, std::vector<std::vector<unsigned long int>> adj_matrix){
     Bfs bfs = Bfs();
     unsigned long int number_of_samples = 1000;
     number_of_samples = std::min(number_of_samples, this->N);
-    mean_l += bfs.avg_geo_dist(number_of_samples,  adj_matrix);
-    return mean_l;
+    mean_l += bfs.avg_geo_dist(number_of_samples, adj_matrix);
 }
 
 
@@ -99,67 +98,62 @@ std::vector<std::vector<double>> Percolation::percolation_molloy_reed_criterion(
         /**************************************************************/
         if((progress >= tick_point) || ((list_of_links.size()) == 0)){
             biggest_component[i][0] = tick_point;
-            biggest_component[i][1] = uf.get_size_of_max_comp();
+            biggest_component[i][1] = static_cast<double>(uf.get_size_of_max_comp());
             tick_point += 1 / static_cast<double>(std::min(number_of_samples, static_cast<unsigned long int>(total)));
             i++;
         }
     }
 
     //Add the critical fraction of added nodes and biggest component in [<k²>/<k> = 2]
-    biggest_component.push_back({pc, biggest_in_pc});
-    std::cout<<std::endl;
+    biggest_component.push_back({pc, static_cast<double>(biggest_in_pc)});
     return biggest_component;
 }
 
-std::vector<std::vector<double>> Percolation::percolation_computation(unsigned int num_rep){
+std::vector<std::vector<double>> Percolation::percolation_molloy_reed(unsigned int num_rep){
     std::cout <<"[Percolation computation...]"<< std::endl;
-    unsigned long int number_of_samples = std::min(this->N, static_cast<unsigned long int>(1000));
+    unsigned long int point_samples = std::min(this->N, static_cast<unsigned long int>(1000));
     double pc_mu = 0;
     double bc_mu = 0;
     double mean_l = 0;
-    std::vector<std::vector<double>> biggest_component(number_of_samples + 2, {0, 0, 0, 0}); // (Fraction of nodes, size of biggest component) {pc_mu, bc_mu, pc_var, bc_var}
+    std::vector<std::vector<double>> molloy_reed_p_results(point_samples + 2, {0, 0, 0, 0}); // (Fraction of nodes, size of biggest component) {pc_mu, bc_mu, pc_var, bc_var}
     double progress = 0.0;
+    progress_bar(progress);
     for(unsigned long int n = 0; n < num_rep; n++) {
         progress += 1 / static_cast<double>(num_rep);
         std::vector<unsigned long int> degree_list = get_degree_list();
         Topology_builder tb = Topology_builder(degree_list);
         Graph g = tb.get_g();
-        geodesical_distance_computation(std::ref(mean_l), g.get_adj_matrix());
+//        std::thread t (&Percolation::t_geodesical_distance, this, std::ref(mean_l), g.get_adj_matrix());
+//        std::vector<std::vector<double>> input = percolation_molloy_reed_criterion(g.get_link_list(), point_samples); // (Fraction of nodes, size of biggest component)
+//        for(unsigned int j = 0; j <= point_samples; ++j){
+//            pc_mu = molloy_reed_p_results[j][0];
+//            bc_mu = molloy_reed_p_results[j][1];
+//            //Mean
+//            molloy_reed_p_results[j][0] = molloy_reed_p_results[j][0] + ((input[j][0] - molloy_reed_p_results[j][0]) / (n + 1));
+//            molloy_reed_p_results[j][1] = molloy_reed_p_results[j][1] + ((input[j][1] - molloy_reed_p_results[j][1]) / (n + 1));
+//            //Var
+//            molloy_reed_p_results[j][2] = molloy_reed_p_results[j][2] + (input[j][0] - pc_mu) * (input[j][0] - molloy_reed_p_results[j][0]);
+//            molloy_reed_p_results[j][3] = molloy_reed_p_results[j][3] + (input[j][1] - bc_mu) * (input[j][1] - molloy_reed_p_results[j][1]);
+//        }
 
-        std::cout << "\e[A";
-        std::cout<< "[" << n + 1 << "/" << num_rep << "]                  " << std::endl;
-        std::vector<std::vector<double>> input = percolation_molloy_reed_criterion(g.get_link_list(), number_of_samples); // (Fraction of nodes, size of biggest component)
-        for(unsigned int j = 0; j <= number_of_samples; ++j){
-            pc_mu = biggest_component[j][0];
-            bc_mu = biggest_component[j][1];
-            //Mean
-            biggest_component[j][0] = biggest_component[j][0] + ((input[j][0] - biggest_component[j][0]) / (n + 1));
-            biggest_component[j][1] = biggest_component[j][1] + ((input[j][1] - biggest_component[j][1]) / (n + 1));
-            //Var
-            biggest_component[j][2] = biggest_component[j][2] + (input[j][0] - pc_mu) * (input[j][0] - biggest_component[j][0]);
-            biggest_component[j][3] = biggest_component[j][3] + (input[j][1] - bc_mu) * (input[j][1] - biggest_component[j][1]);
-        }
-
-        if(input[number_of_samples + 1][0] >= 0){
-            pc_mu = biggest_component[number_of_samples + 1][0];
-            bc_mu = biggest_component[number_of_samples + 1][1];
-            //Mean
-            biggest_component[number_of_samples + 1][0] = biggest_component[number_of_samples + 1][0] + ((input[number_of_samples + 1][0] - biggest_component[number_of_samples + 1][0]) / (n + 1));
-            biggest_component[number_of_samples + 1][1] = biggest_component[number_of_samples + 1][1] + ((input[number_of_samples + 1][1] - biggest_component[number_of_samples + 1][1]) / (n + 1));
-            //Var
-            biggest_component[number_of_samples + 1][2] = biggest_component[number_of_samples + 1][2] + (input[number_of_samples + 1][0] - pc_mu) * (input[number_of_samples + 1][0] - biggest_component[number_of_samples + 1][0]);
-            biggest_component[number_of_samples + 1][3] = biggest_component[number_of_samples + 1][3] + (input[number_of_samples + 1][1] - bc_mu) * (input[number_of_samples + 1][1] - biggest_component[number_of_samples + 1][1]);
-        }
+//        if(input[point_samples + 1][0] >= 0){
+//            pc_mu = molloy_reed_p_results[point_samples + 1][0];
+//            bc_mu = molloy_reed_p_results[point_samples + 1][1];
+//            //Mean
+//            molloy_reed_p_results[point_samples + 1][0] = molloy_reed_p_results[point_samples + 1][0] + ((input[point_samples + 1][0] - molloy_reed_p_results[point_samples + 1][0]) / (n + 1));
+//            molloy_reed_p_results[point_samples + 1][1] = molloy_reed_p_results[point_samples + 1][1] + ((input[point_samples + 1][1] - molloy_reed_p_results[point_samples + 1][1]) / (n + 1));
+//            //Var
+//            molloy_reed_p_results[point_samples + 1][2] = molloy_reed_p_results[point_samples + 1][2] + (input[point_samples + 1][0] - pc_mu) * (input[point_samples + 1][0] - molloy_reed_p_results[point_samples + 1][0]);
+//            molloy_reed_p_results[point_samples + 1][3] = molloy_reed_p_results[point_samples + 1][3] + (input[point_samples + 1][1] - bc_mu) * (input[point_samples + 1][1] - molloy_reed_p_results[point_samples + 1][1]);
+//        }
+//        t.join();
+//        std::cout << "\e[A";
         progress_bar(progress);
-        // Take carriage 2 alines above to count / progress without messy newlines
-        if(n < num_rep -1){
-            std::cout << "\e[A";
-            std::cout << "\e[A";
-        }
     }
     mean_l /= num_rep;
-    biggest_component.push_back({mean_l, -1, -1, -1});
-return biggest_component;
+    molloy_reed_p_results.push_back({mean_l, -1, -1, -1});
+    this->molloy_reed_results = molloy_reed_p_results;
+    return molloy_reed_p_results;
 }
 
 /*********************************************************/
@@ -167,54 +161,18 @@ return biggest_component;
 /*********************************************************/
 
 
-//void write_random_vector(const std::string& filename, std::vector<unsigned long int> random_vector){
-//    std::ofstream myfile;
-//    myfile.open (filename);
-//    for (unsigned long int i=0; i < random_vector.size(); i++){
-//        if(i < random_vector.size() - 1) myfile << random_vector[i] << ",";
-//        else {
-//            myfile << random_vector[i];
-//        }
-//    }
-//    myfile.close();
-//}
-
-//void write_g(const std::string& fn1, const std::string& fn2, Graph graph){
-//    std::ofstream myfile;
-//    myfile.open (fn1);
-//    std::vector<unsigned long int> dist = graph.get_degree_distribution();
-//    std::vector<std::pair<unsigned long int, unsigned long int>> link_list = graph.get_link_list();
-//    while (!dist.empty()) {
-//        unsigned long int deg = dist.back();
-//        dist.pop_back();
-//        myfile << deg << std::endl;
-//    }
-//    myfile.close();
-//    myfile.open (fn2);
-//    while (!link_list.empty()) {
-//        std::pair<unsigned long int, unsigned long int> link = link_list.back();
-//        link_list.pop_back();
-//        myfile << link.first << "," << link.second << std::endl;
-//    }
-//    myfile.close();
-//}
-
-//void write_links(const std::string& filename, std::vector<std::pair<unsigned long int, unsigned long int>> list){
-//    std::ofstream myfile;
-//    myfile.open (filename);
-//    std::cout <<"[Writing graph links...]"<< std::endl;
-////    myfile << "Source" << "," << "Target" << std::endl;
-//    while (!list.empty()) {
-//        std::pair<unsigned long int, unsigned long int> pair = list.back();
-//        if(list.size() > 1){
-//            myfile << pair.first << "," << pair.second << std::endl;
-//        } else{
-//            myfile << pair.first << "," << pair.second;
-//        }
-//        // Remove the link from the list of links
-//        list.pop_back();
-//    }
-//    myfile.close();
-//}
+void Percolation::write_random_vector(const std::string& filename){
+    std::ofstream myfile;
+    myfile.open (filename);
+    for (auto value : this->molloy_reed_results){
+        for(unsigned long int i = 0;  i < value.size(); i++ ){
+            if(i < value.size() - 1) myfile << value[i] << ",";
+            else {
+                myfile << value[i];
+            }
+        }
+    }
+    myfile.close();
+}
 
 

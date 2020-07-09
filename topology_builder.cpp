@@ -14,28 +14,9 @@ Topology_builder::Topology_builder(std::vector<unsigned long int> dl){
     this->degree_list = dl;
     this->g = Graph(dl.size());
     pre_process();
-    std::cout << "agglutination()" << std::endl;
     agglutination();
-    std::cout << "other_connections()" << std::endl;
     other_connections();
-    std::cout << "finish" << std::endl;
 }
-
-//void Topology_builder::progress_bar(double progress){
-//    unsigned int bar_width = 70;
-//    std::cout << "[";
-//    unsigned int pos = static_cast<unsigned int>(double(bar_width) * progress);
-//    for (unsigned int i = 0; i < bar_width; ++i) {
-//        if (i < pos) std::cout << "=";
-//        else if (i == pos) std::cout << ">";
-//        else std::cout << " ";
-//    }
-//    std::cout << "] " << static_cast<unsigned int>(progress * 100.0) << " %  \r";
-//    std::cout.flush();
-//    if(progress == 1){
-//        std::cout << std::endl;
-//    }
-//}
 
 std::vector<unsigned long int> Topology_builder::create_unbonded_nodes(unsigned long int N) {
     std::vector<unsigned long int> unbonded_nodes;
@@ -75,7 +56,7 @@ void Topology_builder::update_degree(unsigned long int v) {
 }
 
 bool Topology_builder::link(unsigned long v, unsigned long w) {
-    if (g.link(v, w)) {
+    if (g.link(v, w) && (this->degree_list[v] && this->degree_list[w])) {
         update_degree(v);
         update_degree(w);
         return true;
@@ -178,13 +159,22 @@ void Topology_builder::speckle(){
     unsigned long int v, w, w_idx;
     unsigned long int bn_size = this->bonded_nodes.size();
     Uniform u;
-    while (this->degree_1_counter > 0) {
+    while ((this->degree_1_counter > 0) && bn_size > 0) {
         v = one_deg_pop();
         w_idx = u.randint(bn_size);
         w = this->bonded_nodes[w_idx];
         link(v, w);
         update_bn(w_idx);
         bn_size = this->bonded_nodes.size();
+    }
+    unsigned long int i_min = this->degree_1_counter;
+    if (i_min > 0) {
+        while(this->degree_1_counter > 0){
+            w = u.randint(i_min, this->degree_list.size());
+            v = one_deg_pop();
+            this->degree_list[w]++;
+            link(v, w);
+        }
     }
 }
 
@@ -210,7 +200,7 @@ void Topology_builder::agglutination_overclique() {
            v_idx = u.randint(bn_size);
            v = this->bonded_nodes[v_idx];
            // If the degree of the node poped from LB is bellow or equal ECMD, then select a random node v from the {v in LU | deg(v) above ECMD};
-           if (this->degree_list[v] <= this->k_clique) {
+           if ((this->degree_list[v] <= this->k_clique) && (un_g_size > 0)) {
                w_idx = u.randint(un_l_size, un_size);
                w = un_pop(w_idx);
            }
@@ -250,20 +240,23 @@ void Topology_builder::agglutination(){
 
 void Topology_builder::other_connections(){
     Uniform u;
-    unsigned long int idx_v, idx_w, v, w, size, min, max;
-    size = this->bonded_nodes.size();
+    unsigned long int size = 0;
+    unsigned long int idx_v, idx_w, v, w, min, max;
+    if(!this->bonded_nodes.empty())  size = this->bonded_nodes.size();
     std::vector<unsigned long int> zeroes;
     while (size > 1) {
-        unsigned long int i = 1;
+        unsigned long int i = 0;
         min = 0;
         idx_v = u.randint(size);
         v = this->bonded_nodes[idx_v];
-        while (this->degree_list[v] == 0) {
+        while ((this->degree_list[v] == 0) && (size > 0)) {
             smart_pop(this->bonded_nodes, idx_v);
             size = this->bonded_nodes.size();
             idx_v = u.randint(size);
             v = this->bonded_nodes[idx_v];
         }
+        smart_pop(this->bonded_nodes, idx_v);
+        size = this->bonded_nodes.size();
         max = size;
         std::vector<bool> valuation(size);
         while((this->degree_list[v] > 0) && i < size){
@@ -276,8 +269,7 @@ void Topology_builder::other_connections(){
                 ref = true;
                 i++;
             }
-            link(v, w);
-            if(this->degree_list[w] == 0){
+            if((this->degree_list[w] == 0) && link(v, w)){
                 zeroes.push_back(idx_w);
             }
         }
@@ -286,7 +278,6 @@ void Topology_builder::other_connections(){
             zeroes.pop_back();
             smart_pop(this->bonded_nodes, id);
         }
-        smart_pop(this->bonded_nodes, idx_v);
         size = this->bonded_nodes.size();
     }
 }

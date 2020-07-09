@@ -11,8 +11,9 @@ unsigned long int Uniform::randint(unsigned long xmin, unsigned long xmax){
     }
     std::random_device rd;  //Will be used to obtain a seed for the random number engine
     std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
-    std::uniform_int_distribution<> dis(xmin, xmax);
-    return dis(gen);
+    std::uniform_int_distribution<unsigned long int> dis(xmin, xmax);
+    unsigned long int sample = dis(gen);
+    return sample;
 }
 
 unsigned long int Uniform::randint(unsigned long int xmax){

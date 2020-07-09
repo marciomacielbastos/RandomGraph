@@ -18,21 +18,12 @@
 
 int main(int argc, char *argv[]){
     std::vector<unsigned long int> test;
-    unsigned long int  N = static_cast<unsigned long int>(102400);
+    unsigned long int  N = static_cast<unsigned long int>(100);
     double gamma = 2.5;
     double lambda = 1.7;
     double q = (gamma + 1) / gamma;
     q_Exponential q_exp = q_Exponential(lambda, q, 1, N - 1);
     Percolation p(&q_exp, N);
-    p.percolation_computation(10);
-
-//    for(int j=0; j < 10; j++) {
-//        for(int j = 0; j < N; j++){
-//            unsigned long int val = q_exp.randint();
-//            test.push_back(val);
-//        }
-//        Topology_builder tb = Topology_builder(test);
-//        Graph g = tb.get_g();
-//    }
-//    std::vector<std::vector<unsigned long int>> t = g.get_adj_matrix();
+    p.percolation_molloy_reed(100);
+    p.write_random_vector("/home/marcio/Random-graph/output/teste.txt");
 }
