@@ -48,7 +48,7 @@ void UnionFind::union_(unsigned long int v, unsigned long int w){
     this->sizes[vRoot] += this->sizes[wRoot];
     vsize = this->sizes[vRoot];
     this->number_of_clusters_per_size[vsize-1]++;
-    if(vsize > this->st_biggest.second){
+    if(vsize > this->bigger.second){
         this->bigger.first = vRoot;
         this->bigger.second = vsize;
     }

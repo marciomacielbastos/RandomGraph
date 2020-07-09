@@ -1,6 +1,7 @@
 #ifndef UNIONFIND_H
 #define UNIONFIND_H
 #include <map>
+#include <vector>
 
 class UnionFind{
 private:

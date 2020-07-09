@@ -13,7 +13,6 @@ Topology_builder::Topology_builder(std::vector<unsigned long int> dl){
     this->degree_1_counter = 0;
     this->degree_list = dl;
     this->g = Graph(dl.size());
-    std::cout << "pre-process()" << std::endl;
     pre_process();
     std::cout << "agglutination()" << std::endl;
     agglutination();
@@ -251,19 +250,26 @@ void Topology_builder::agglutination(){
 
 void Topology_builder::other_connections(){
     Uniform u;
-    unsigned long int idx_v, idx_w, v, w, size;
+    unsigned long int idx_v, idx_w, v, w, size, min, max;
     size = this->bonded_nodes.size();
-    while (this->bonded_nodes.size() > 1) {
-        unsigned long int i = 0;        
+    std::vector<unsigned long int> zeroes;
+    while (size > 1) {
+        unsigned long int i = 1;
+        min = 0;
         idx_v = u.randint(size);
         v = this->bonded_nodes[idx_v];
-        if (this->degree_list[v] == 0) {
+        while (this->degree_list[v] == 0) {
             smart_pop(this->bonded_nodes, idx_v);
-            continue;
+            size = this->bonded_nodes.size();
+            idx_v = u.randint(size);
+            v = this->bonded_nodes[idx_v];
         }
+        max = size;
         std::vector<bool> valuation(size);
         while((this->degree_list[v] > 0) && i < size){
-            idx_w = u.randint(size);
+            idx_w = u.randint(min, max);
+            if (idx_w == min) min++;
+            if (idx_w == max) max--;
             w = this->bonded_nodes[idx_w];
             if(!valuation[idx_w]){
                 std::vector<bool>::reference ref = valuation[idx_w];
@@ -271,6 +277,14 @@ void Topology_builder::other_connections(){
                 i++;
             }
             link(v, w);
+            if(this->degree_list[w] == 0){
+                zeroes.push_back(idx_w);
+            }
+        }
+        while (!zeroes.empty()) {
+            unsigned long int id = zeroes.back();
+            zeroes.pop_back();
+            smart_pop(this->bonded_nodes, id);
         }
         smart_pop(this->bonded_nodes, idx_v);
         size = this->bonded_nodes.size();
