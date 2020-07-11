@@ -51,7 +51,7 @@ double Bfs::avg_geo_dist(unsigned long int number_of_samples, std::vector<std::v
 
     std::vector<unsigned long int> list_of_nodes(N);
     for(unsigned long int i=0; i<N; i++){
-        list_of_nodes[i] = i;
+            list_of_nodes[i] = i;
     }
 
     while(number_of_samples){
