@@ -16,8 +16,7 @@
 
 
 void calc (unsigned int num_rep, int i, unsigned long int f, double gamma, double lambda, int kmin) {
-//    std::regex e ("[.]");
-    std::string folder = "/home/marcio/Random-graph/output";
+    std::string folder = "/home/marcio/RandonGraph/Random-graph/output/";
     unsigned long int N = static_cast<unsigned long int>(1E4);
     N *= f;
     double q = (gamma + 1) / gamma;
@@ -28,7 +27,8 @@ void calc (unsigned int num_rep, int i, unsigned long int f, double gamma, doubl
     ss << "E4";
     ss << "_" << i;
     ss << "_" << kmin;
-//    out_string = std::regex_replace(ss.str(), e, "-");
+    std::cout <<"N: 2^"<<n<<"E4"<<", (q="<< q <<", lambda="<< lambda << "), kmin: "<<kmin<< std::endl;
+    out_string = ss.str();
     q_Exponential q_exp = q_Exponential(lambda, q, 1, N - 1);
     Percolation p(&q_exp, N);
     p.percolation_molloy_reed(num_rep);
@@ -37,8 +37,7 @@ void calc (unsigned int num_rep, int i, unsigned long int f, double gamma, doubl
 }
 
 void calc_t (unsigned int num_rep, int i, unsigned long int f, double gamma, double lambda, int kmin, int thread_id) {
-//    std::regex e ("[.]");
-    std::string folder = "/home/marcio/Random-graph/output";
+    std::string folder = "/home/marcio/RandonGraph/Random-graph/output/";
     unsigned long int N = static_cast<unsigned long int>(1E4);
     N *= f;
     double q = (gamma + 1) / gamma;
@@ -49,7 +48,7 @@ void calc_t (unsigned int num_rep, int i, unsigned long int f, double gamma, dou
     ss << "E4";
     ss << "_" << i;
     ss << "_" << kmin;
-//    out_string = std::regex_replace(ss.str(), e, "-");
+    out_string = ss.str();
     q_Exponential q_exp = q_Exponential(lambda, q, 1, N - 1);
     Percolation p(&q_exp, N, thread_id);
     p.percolation_molloy_reed(num_rep);
@@ -77,27 +76,30 @@ int main(int argc, char *argv[]){
     /***********************************************************/
     /*                  Set Paremeters String                  */
     /***********************************************************/
-    std::vector<std::thread> thrds;
+//    std::vector<std::thread> thrds;
+//    int id = 0;
     for (int i = 0; i < 5; i++) {
 
-        for (int j = 0; j < 7; j++) {
-            thrds.push_back(std::move(std::thread(calc, num_rep, i, f[j], gamma_values[i], lambda_values[i], kmin)));
+        for (int j = 0; j < 11; j++) {
+//            thrds.push_back(std::move(std::thread(calc_t, num_rep, i, f[j], gamma_values[i], lambda_values[i], kmin, id)));
+            calc(num_rep, i, f[j], gamma_values[i], lambda_values[i], kmin);
+//            id++;
         }
     }
 
-    for (auto& t : thrds) {
-        t.join();
-    }
+//    for (auto& t : thrds) {
+//        t.join();
+//    }
 
-    for (int i = 0; i < 5; i++) {
+//    for (int i = 0; i < 5; i++) {
 
-        for (int j = 7; j < 11; j++) {
-            thrds.push_back(std::move(std::thread(calc, num_rep, i, f[j], gamma_values[i], lambda_values[i], kmin)));
-        }
-    }
+//        for (int j = 7; j < 11; j++) {
+//            thrds.push_back(std::move(std::thread(calc, num_rep, i, f[j], gamma_values[i], lambda_values[i], kmin)));
+//        }
+//    }
 
-    for (auto& t : thrds) {
-        t.join();
-    }
+//    for (auto& t : thrds) {
+//        t.join();
+//    }
 
 }

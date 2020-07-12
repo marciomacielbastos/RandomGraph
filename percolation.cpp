@@ -12,8 +12,8 @@ Percolation::Percolation(Distribution * probability_distribution, unsigned long 
 }
 
 void Percolation::progress_bar(double increment, unsigned long int i, unsigned long int n) {
-    for (int i=0; i<5; i++) std::cout << "\e[A";
-    for (int i=0; i<this->thread_id; i++) std::cout << "\e[B";
+//    for (int i=0; i<5; i++) std::cout << "\e[A";
+//    for (int i=0; i<this->thread_id; i++) std::cout << "\e[B";
     double progress = increment * static_cast<double>(i);
     unsigned int bar_width = 70;
     std::cout << "[";
@@ -36,7 +36,7 @@ double Percolation::get_q(double gamma){
 
 std::vector<unsigned long int> Percolation::get_degree_list(){
     std::vector<unsigned long int> degree_list;
-    for(int j = 0; j < this->N; j++){
+    for(unsigned long int j = 0; j < this->N; j++){
         unsigned long int val = this->probability_distribution->randint();
         degree_list.push_back(val);
     }
@@ -76,7 +76,7 @@ std::vector<std::vector<double>> Percolation::percolation_molloy_reed_criterion(
     unsigned long int biggest_in_pc;
 
     double progress = 0.0;
-    double increment = 1 / static_cast<double>(number_of_samples);
+    double increment = total / static_cast<double>(number_of_samples);
     double tick_point = increment;
 
     unsigned int i = 1;
@@ -97,7 +97,7 @@ std::vector<std::vector<double>> Percolation::percolation_molloy_reed_criterion(
         molloy_reed_coef = sum_of_squared_k / (2 * number_of_links_added);
 
         // Check if the fraction of nodes added reach the Molloy-Reed criterion limit [<k²>/<k> = 2]
-        if(((std::abs(molloy_reed_coef - 2) <= 0.01) || (molloy_reed_coef > 2)) && key){
+        if((molloy_reed_coef >= 2) && key){
             pc = progress;
             biggest_in_pc = uf.get_size_of_max_comp();
             key = false;
@@ -108,7 +108,7 @@ std::vector<std::vector<double>> Percolation::percolation_molloy_reed_criterion(
         /*                      Percolation data                      */
         /*                                                            */
         /**************************************************************/
-        if((progress >= tick_point) || ((list_of_links.size()) == 0)){
+        if((progress * total >= tick_point) || ((list_of_links.size()) == 0)){
             biggest_component[i][0] = progress;
             biggest_component[i][1] = static_cast<double>(uf.get_size_of_max_comp());
             tick_point += increment;
@@ -129,7 +129,6 @@ std::vector<std::vector<double>> Percolation::percolation_molloy_reed(unsigned i
     double mean_l = 0;
     std::vector<std::vector<double>> molloy_reed_p_results(number_of_samples + 1, {0, 0, 0, 0}); // (Fraction of nodes, size of biggest component) {pc_mu, bc_mu, pc_var, bc_var}
     double increment = 1 / static_cast<double>(num_rep);
-
     for(unsigned long int n = 0; n < num_rep; n++) {
         progress_bar(increment, n,  num_rep);
         std::vector<unsigned long int> degree_list = get_degree_list();
@@ -149,18 +148,7 @@ std::vector<std::vector<double>> Percolation::percolation_molloy_reed(unsigned i
             molloy_reed_p_results[j][3] = molloy_reed_p_results[j][3] + (input[j][1] - bc_mu) * (input[j][1] - molloy_reed_p_results[j][1]);
         }
 
-//        if(input[number_of_samples + 1][0] >= 0){
-//            pc_mu = molloy_reed_p_results[number_of_samples + 1][0];
-//            bc_mu = molloy_reed_p_results[number_of_samples + 1][1];
-//            //Mean
-//            molloy_reed_p_results[number_of_samples + 1][0] = molloy_reed_p_results[number_of_samples + 1][0] + ((input[number_of_samples + 1][0] - molloy_reed_p_results[number_of_samples + 1][0]) / (n + 1));
-//            molloy_reed_p_results[number_of_samples + 1][1] = molloy_reed_p_results[number_of_samples + 1][1] + ((input[number_of_samples + 1][1] - molloy_reed_p_results[number_of_samples + 1][1]) / (n + 1));
-//            //Var
-//            molloy_reed_p_results[number_of_samples + 1][2] = molloy_reed_p_results[number_of_samples + 1][2] + (input[number_of_samples + 1][0] - pc_mu) * (input[number_of_samples + 1][0] - molloy_reed_p_results[number_of_samples + 1][0]);
-//            molloy_reed_p_results[number_of_samples + 1][3] = molloy_reed_p_results[number_of_samples + 1][3] + (input[number_of_samples + 1][1] - bc_mu) * (input[number_of_samples + 1][1] - molloy_reed_p_results[number_of_samples + 1][1]);
-//        }
         t.join();
-//        std::cout << "\e[A";
 
     }
     progress_bar(increment, num_rep,  num_rep);
