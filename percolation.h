@@ -14,6 +14,10 @@
 #include <fstream>
 #include <sstream>
 
+/* Show duration time of computation */
+#include <chrono>
+#include <time.h>
+
 class Percolation{
 private:
     unsigned long int  N;

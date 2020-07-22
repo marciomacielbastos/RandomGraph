@@ -6,6 +6,10 @@
 #include <iostream>
 #include <algorithm>
 
+/* Show duration time of computation */
+#include <chrono>
+#include <time.h>
+
 class Topology_builder{
 private:
     unsigned long int degree_1_counter;

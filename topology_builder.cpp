@@ -13,9 +13,19 @@ Topology_builder::Topology_builder(std::vector<unsigned long int> dl){
     this->degree_1_counter = 0;
     this->degree_list = dl;
     this->g = Graph(dl.size());
+    auto start = std::chrono::high_resolution_clock::now();
     pre_process();
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+    std::cout << "pre_process duration: (" << duration.count() << " millisecond)"<< std::endl;
     agglutination();
+    stop = std::chrono::high_resolution_clock::now();
+    duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+    std::cout << "agglutination duration: (" << duration.count() << " millisecond)"<< std::endl;
     other_connections();
+    stop = std::chrono::high_resolution_clock::now();
+    duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+    std::cout << "other connections duration: (" << duration.count() << " millisecond)"<< std::endl;
 }
 
 std::vector<unsigned long int> Topology_builder::create_unbonded_nodes(unsigned long int N) {
@@ -240,36 +250,31 @@ void Topology_builder::agglutination(){
 
 void Topology_builder::other_connections(){
     Uniform u;
-    unsigned long int size = 0;
-    unsigned long int idx_v, idx_w, v, w, min, max;
-    if(!this->bonded_nodes.empty())  size = this->bonded_nodes.size();
+    unsigned long int number_of_nodes_to_link = 0;
+    unsigned long int idx_v, idx_w, v, w, id_min, id_max;
+    if(!this->bonded_nodes.empty())  number_of_nodes_to_link = this->bonded_nodes.size();
     std::vector<unsigned long int> zeroes;
-    while (size > 1) {
+    while (number_of_nodes_to_link > 1) {
         unsigned long int i = 0;
-        min = 0;
-        idx_v = u.randint(size);
+        id_min = 0;
+        idx_v = u.randint(number_of_nodes_to_link);
         v = this->bonded_nodes[idx_v];
-        while ((this->degree_list[v] == 0) && (size > 0)) {
-            smart_pop(this->bonded_nodes, idx_v);
-            size = this->bonded_nodes.size();
-            idx_v = u.randint(size);
-            v = this->bonded_nodes[idx_v];
-        }
         smart_pop(this->bonded_nodes, idx_v);
-        size = this->bonded_nodes.size();
-        max = size;
-        std::vector<bool> valuation(size);
-        while((this->degree_list[v] > 0) && i < size){
-            idx_w = u.randint(min, max);
-            if (idx_w == min) min++;
-            if (idx_w == max) max--;
+        number_of_nodes_to_link = this->bonded_nodes.size();
+        id_max = number_of_nodes_to_link;
+        std::vector<bool> linked_map(number_of_nodes_to_link);
+        while((this->degree_list[v] > 0) && i < number_of_nodes_to_link){
+            idx_w = u.randint(id_min, id_max);
+            if (idx_w == id_min) id_min++;
+            if (idx_w == id_max) id_max--;
             w = this->bonded_nodes[idx_w];
-            if(!valuation[idx_w]){
-                std::vector<bool>::reference ref = valuation[idx_w];
+            if(!linked_map[idx_w]){
+                std::vector<bool>::reference ref = linked_map[idx_w];
                 ref = true;
                 i++;
             }
-            if((this->degree_list[w] == 0) && link(v, w)){
+            link(v, w);
+            if(this->degree_list[w] == 0){
                 zeroes.push_back(idx_w);
             }
         }
@@ -278,7 +283,7 @@ void Topology_builder::other_connections(){
             zeroes.pop_back();
             smart_pop(this->bonded_nodes, id);
         }
-        size = this->bonded_nodes.size();
+        number_of_nodes_to_link = this->bonded_nodes.size();
     }
 }
 
