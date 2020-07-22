@@ -13,19 +13,9 @@ Topology_builder::Topology_builder(std::vector<unsigned long int> dl){
     this->degree_1_counter = 0;
     this->degree_list = dl;
     this->g = Graph(dl.size());
-    auto start = std::chrono::high_resolution_clock::now();
     pre_process();
-    auto stop = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "pre_process duration: (" << duration.count() << " millisecond)"<< std::endl;
     agglutination();
-    stop = std::chrono::high_resolution_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "agglutination duration: (" << duration.count() << " millisecond)"<< std::endl;
     other_connections();
-    stop = std::chrono::high_resolution_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "other connections duration: (" << duration.count() << " millisecond)"<< std::endl;
 }
 
 std::vector<unsigned long int> Topology_builder::create_unbonded_nodes(unsigned long int N) {
@@ -253,7 +243,7 @@ void Topology_builder::other_connections(){
     unsigned long int number_of_nodes_to_link = 0;
     unsigned long int idx_v, idx_w, v, w, id_min, id_max;
     if(!this->bonded_nodes.empty())  number_of_nodes_to_link = this->bonded_nodes.size();
-    std::vector<unsigned long int> zeroes;
+    std::set<unsigned long int> zeroes;
     while (number_of_nodes_to_link > 1) {
         unsigned long int i = 0;
         id_min = 0;
@@ -275,14 +265,13 @@ void Topology_builder::other_connections(){
             }
             link(v, w);
             if(this->degree_list[w] == 0){
-                zeroes.push_back(idx_w);
+                zeroes.insert(idx_w);
             }
         }
-        while (!zeroes.empty()) {
-            unsigned long int id = zeroes.back();
-            zeroes.pop_back();
-            smart_pop(this->bonded_nodes, id);
+        for (std::set<unsigned long int>::iterator it=zeroes.begin(); it!=zeroes.end(); ++it) {
+            smart_pop(this->bonded_nodes, *it);
         }
+        zeroes.clear();
         number_of_nodes_to_link = this->bonded_nodes.size();
     }
 }

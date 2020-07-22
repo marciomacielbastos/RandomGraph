@@ -14,9 +14,6 @@
 #include <fstream>
 #include <sstream>
 
-/* Show duration time of computation */
-#include <chrono>
-#include <time.h>
 
 class Percolation{
 private:
@@ -39,7 +36,7 @@ public:
 
     std::vector<std::vector<double>> percolation_molloy_reed(unsigned int num_rep);
 
-    void write_random_vector(const std::string& filename);
+    void write_percolation_results(const std::string& filename);
 
 
 

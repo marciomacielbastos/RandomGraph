@@ -38,7 +38,7 @@ void calc (unsigned int num_rep, int i, unsigned long int f, double gamma, doubl
     q_Exponential q_exp = q_Exponential(lambda, q, kmin, N - 1);
     Percolation p(&q_exp, N);
     p.percolation_molloy_reed(num_rep);
-    p.write_random_vector(folder + out_string + ".txt");
+    p.write_percolation_results(folder + out_string + ".txt");
 
 }
 
@@ -58,7 +58,7 @@ void calc_t (unsigned int num_rep, int i, unsigned long int f, double gamma, dou
     q_Exponential q_exp = q_Exponential(lambda, q, 1, N - 1);
     Percolation p(&q_exp, N, thread_id);
     p.percolation_molloy_reed(num_rep);
-    p.write_random_vector(folder + out_string + ".txt");
+    p.write_percolation_results(folder + out_string + ".txt");
 
 }
 
@@ -92,19 +92,13 @@ int main(int argc, char *argv[]){
     int kmin = 1;
     double gamma_values[5] = {2.5, 3.0, 3.5, 4.0 , 4.5};
     double lambda_values[5] = {1.751, 0.551, 0.334, 0.26, 0.223};
-    int i = 3;
-    int j = 5;
-    std::vector<unsigned long int> degree_list = test_degree_list(f[j], gamma_values[i], lambda_values[i], kmin);
-//    for (int j = 0; j < 8; j++) {
-//        calc(num_rep, i, f[j], gamma_values[i], lambda_values[i], kmin);
-//    }
+    int i = 0;
+
+    for (int j = 0; j < 8; j++) {
+        calc(num_rep, i, f[j], gamma_values[i], lambda_values[i], kmin);
+    }
+
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "test_degree_list duration: (" << duration.count() << " millisecond)"<< std::endl;
-
-    test_topology(degree_list);
-    stop = std::chrono::high_resolution_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "test_topology duration: (" << duration.count() << " millisecond)"<< std::endl;
-
+    std::cout << "Done! duration: (" << duration.count() << " milliseconds)"<< std::endl;
 }

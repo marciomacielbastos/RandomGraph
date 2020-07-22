@@ -59,14 +59,14 @@ void Percolation::t_geodesical_distance(double& mean_l, std::vector<std::vector<
 /*                         Calculus of pc                         */
 /******************************************************************/
 std::vector<std::vector<double>> Percolation::percolation_molloy_reed_criterion(std::vector<std::pair<unsigned long int, unsigned long int>> list_of_links,
-                                                                                             unsigned long int number_of_samples){
-    /* "number_of_samples" represents how manny save ticks do you want on your percolation record, if your network
+                                                                                             unsigned long int number_of_checkpoints){
+    /* "number_of_checkpoints" represents how manny save ticks do you want on your percolation record, if your network
        is too big its better to reduce this A LOT! (you will execute as many outputs as this value) */
 
 
     double total = static_cast<double>(list_of_links.size());
     UnionFind uf = UnionFind(this->N);
-    std::vector<std::vector<double>> biggest_component(number_of_samples, {0, 1});
+    std::vector<std::vector<double>> biggest_component(number_of_checkpoints + 1, {0, 1});
     std::vector<unsigned long int> degrees(this->N, 0);
 
     double sum_of_squared_k = 0;
@@ -76,7 +76,7 @@ std::vector<std::vector<double>> Percolation::percolation_molloy_reed_criterion(
     unsigned long int biggest_in_pc;
 
     double progress = 0.0;
-    double increment = total / static_cast<double>(number_of_samples);
+    double increment = total / static_cast<double>(number_of_checkpoints);
     double tick_point = increment;
 
     unsigned int i = 1;
@@ -108,8 +108,14 @@ std::vector<std::vector<double>> Percolation::percolation_molloy_reed_criterion(
         /*                      Percolation data                      */
         /*                                                            */
         /**************************************************************/
-        if((progress * total >= tick_point) || ((list_of_links.size()) == 0)){
-            biggest_component[i][0] = progress;
+        if((progress * total >= tick_point) || list_of_links.empty()){
+            if(list_of_links.empty()) {
+                biggest_component[i][0] = 1;
+            }
+            else {
+                biggest_component[i][0] = progress;
+            }
+
             biggest_component[i][1] = static_cast<double>(uf.get_size_of_max_comp());
             tick_point += increment;
             i++;
@@ -117,27 +123,31 @@ std::vector<std::vector<double>> Percolation::percolation_molloy_reed_criterion(
     }
 
     //Add the critical fraction of added nodes and biggest component in [<k²>/<k> = 2]
+    if(biggest_component[number_of_checkpoints][0] == 0){
+        int i = 0;
+        i++;
+    }
     biggest_component.push_back({pc, static_cast<double>(biggest_in_pc)});
     return biggest_component;
 }
 
-std::vector<std::vector<double>> Percolation::percolation_molloy_reed(unsigned int num_rep){
+std::vector<std::vector<double>> Percolation::percolation_molloy_reed(unsigned int number_of_samples){
 //    std::cout <<"[Percolation computation...]"<< std::endl;
-    unsigned long int number_of_samples = this->N;
+    unsigned long int number_of_checkpoints = 9999;
     double pc_mu = 0;
     double bc_mu = 0;
     double mean_l = 0;
-    std::vector<std::vector<double>> molloy_reed_p_results(number_of_samples + 1, {0, 0, 0, 0}); // (Fraction of nodes, size of biggest component) {pc_mu, bc_mu, pc_var, bc_var}
-    double increment = 1 / static_cast<double>(num_rep);
-    for(unsigned long int n = 0; n < num_rep; n++) {
-        progress_bar(increment, n,  num_rep);
+    std::vector<std::vector<double>> molloy_reed_p_results(number_of_checkpoints + 2, {0, 0, 0, 0}); // (Fraction of nodes, size of biggest component) {pc_mu, bc_mu, pc_var, bc_var}
+    double increment = 1 / static_cast<double>(number_of_samples);
+    for(unsigned long int n = 0; n < number_of_samples; n++) {
+        progress_bar(increment, n,  number_of_samples);
         std::vector<unsigned long int> degree_list = get_degree_list();
         Topology_builder tb = Topology_builder(degree_list);
         Graph g = tb.get_g();
         std::thread t (&Percolation::t_geodesical_distance, this, std::ref(mean_l), g.get_adj_matrix());
         //input = list of (Fraction of nodes, size of biggest component)
-        std::vector<std::vector<double>> input = percolation_molloy_reed_criterion(g.get_link_list(), number_of_samples);
-        for(unsigned int j = 0; j <= number_of_samples; ++j){
+        std::vector<std::vector<double>> input = percolation_molloy_reed_criterion(g.get_link_list(), number_of_checkpoints);
+        for(unsigned int j = 0; j < molloy_reed_p_results.size() ; ++j){
             pc_mu = molloy_reed_p_results[j][0];
             bc_mu = molloy_reed_p_results[j][1];
             //Mean
@@ -151,8 +161,8 @@ std::vector<std::vector<double>> Percolation::percolation_molloy_reed(unsigned i
         t.join();
 
     }
-    progress_bar(increment, num_rep,  num_rep);
-    mean_l /= num_rep;
+    progress_bar(increment, number_of_samples,  number_of_samples);
+    mean_l /= number_of_samples;
     molloy_reed_p_results.push_back({mean_l, -1, -1, -1});
     this->molloy_reed_results = molloy_reed_p_results;
     return molloy_reed_p_results;
@@ -163,7 +173,7 @@ std::vector<std::vector<double>> Percolation::percolation_molloy_reed(unsigned i
 /*********************************************************/
 
 
-void Percolation::write_random_vector(const std::string& filename){
+void Percolation::write_percolation_results(const std::string& filename){
     std::ofstream myfile;
     myfile.open (filename);
     for (auto value : this->molloy_reed_results){
