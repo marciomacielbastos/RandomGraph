@@ -243,7 +243,7 @@ void Topology_builder::other_connections(){
     unsigned long int number_of_nodes_to_link = 0;
     unsigned long int idx_v, idx_w, v, w, id_min, id_max;
     if(!this->bonded_nodes.empty())  number_of_nodes_to_link = this->bonded_nodes.size();
-    std::set<unsigned long int> zeroes;
+    std::set<unsigned long int, std::greater<unsigned long int>> zeroes;
     while (number_of_nodes_to_link > 1) {
         unsigned long int i = 0;
         id_min = 0;

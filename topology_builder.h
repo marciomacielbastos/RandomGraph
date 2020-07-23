@@ -4,6 +4,7 @@
 #include <set>
 #include <graph.h>
 #include <iostream>
+#include <functional>
 #include <algorithm>
 
 class Topology_builder{
