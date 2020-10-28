@@ -9,7 +9,7 @@
  * Second, agglutination. In this method, we randomly create a path between each node in the graph;
  * Finally we randomly complete the missing links leaving the minimum number of loose ends.
 */
-Topology_builder::Topology_builder(std::vector<unsigned long int> dl){
+TopologyBuilder::TopologyBuilder(std::vector<unsigned long int> dl){
     this->degree_1_counter = 0;
     this->degree_list = dl;
     this->g = Graph(dl.size());
@@ -18,7 +18,7 @@ Topology_builder::Topology_builder(std::vector<unsigned long int> dl){
     other_connections();
 }
 
-std::vector<unsigned long int> Topology_builder::create_unbonded_nodes(unsigned long int N) {
+std::vector<unsigned long int> TopologyBuilder::create_unbonded_nodes(unsigned long int N) {
     std::vector<unsigned long int> unbonded_nodes;
     for(unsigned long int i = 0; i < N; i++){
         if(degree_list[i] == 1){
@@ -32,7 +32,7 @@ std::vector<unsigned long int> Topology_builder::create_unbonded_nodes(unsigned 
     return unbonded_nodes;
 }
 
-void Topology_builder::break_unbonded_nodes(std::vector<unsigned long int> &unbonded_nodes) {
+void TopologyBuilder::break_unbonded_nodes(std::vector<unsigned long int> &unbonded_nodes) {
     while(!unbonded_nodes.empty()){
         unsigned long int idx = unbonded_nodes.back();
         unbonded_nodes.pop_back();
@@ -45,17 +45,17 @@ void Topology_builder::break_unbonded_nodes(std::vector<unsigned long int> &unbo
     }
 }
 
-unsigned long int Topology_builder::one_deg_pop() {
+unsigned long int TopologyBuilder::one_deg_pop() {
     unsigned long int v = this->degree_1_counter - 1;
     this->degree_1_counter--;
     return v;
 }
 
-void Topology_builder::update_degree(unsigned long int v) {
+void TopologyBuilder::update_degree(unsigned long int v) {
     this->degree_list[v]--;
 }
 
-bool Topology_builder::link(unsigned long v, unsigned long w) {
+bool TopologyBuilder::link(unsigned long v, unsigned long w) {
     if (g.link(v, w) && (this->degree_list[v] && this->degree_list[w])) {
         update_degree(v);
         update_degree(w);
@@ -66,7 +66,7 @@ bool Topology_builder::link(unsigned long v, unsigned long w) {
     }
 }
 
-void Topology_builder::speckle_overbond() {
+void TopologyBuilder::speckle_overbond() {
     unsigned long int v, w, idx;
     Uniform u;
     while ((this->degree_1_counter > 0) && (!this->unbonded_nodes_g.empty())) {
@@ -81,7 +81,7 @@ void Topology_builder::speckle_overbond() {
     }
 }
 
-void Topology_builder::pre_process() {
+void TopologyBuilder::pre_process() {
     unsigned long int N = this->degree_list.size();
     std::sort (this->degree_list.begin(), this->degree_list.end());
     std::vector<unsigned long int> unbonded_nodes = create_unbonded_nodes(N);
@@ -89,14 +89,14 @@ void Topology_builder::pre_process() {
     speckle_overbond();
 }
 
-unsigned long int Topology_builder::smart_pop(std::vector<unsigned long int> &list, unsigned long int idx) {
+unsigned long int TopologyBuilder::smart_pop(std::vector<unsigned long int> &list, unsigned long int idx) {
     unsigned long int temp = list[idx];
     list[idx] = list.back();
     list.pop_back();
     return temp;
 }
 
-unsigned long int Topology_builder::un_pop(unsigned long int w_idx) {
+unsigned long int TopologyBuilder::un_pop(unsigned long int w_idx) {
     unsigned long int un_l_size = this->unbonded_nodes_l.size();
     if (w_idx < un_l_size) {
         return smart_pop(this->unbonded_nodes_l, w_idx);
@@ -107,16 +107,16 @@ unsigned long int Topology_builder::un_pop(unsigned long int w_idx) {
     }
 }
 
-void Topology_builder::bn_push(unsigned long int w) {
+void TopologyBuilder::bn_push(unsigned long int w) {
     this->bonded_nodes.push_back(w);
 }
 
-void Topology_builder::update_bn(unsigned long int v_idx) {
+void TopologyBuilder::update_bn(unsigned long int v_idx) {
     unsigned long int deg = this->degree_list[this->bonded_nodes[v_idx]];
     if(deg == 0) smart_pop(this->bonded_nodes, v_idx);
 }
 
-void Topology_builder::update_bn(unsigned long int v_idx, unsigned long int w_idx) {
+void TopologyBuilder::update_bn(unsigned long int v_idx, unsigned long int w_idx) {
     if (v_idx < w_idx)  {
         update_bn(w_idx);
         update_bn(v_idx);
@@ -127,7 +127,7 @@ void Topology_builder::update_bn(unsigned long int v_idx, unsigned long int w_id
     }
 }
 
-void Topology_builder::agglutination_underclique() {
+void TopologyBuilder::agglutination_underclique() {
     Uniform u;
     unsigned long int w, v, w_idx, v_idx;
     unsigned long int bn_size = this->bonded_nodes.size();
@@ -155,7 +155,7 @@ void Topology_builder::agglutination_underclique() {
     }
 }
 
-void Topology_builder::speckle(){
+void TopologyBuilder::speckle(){
     unsigned long int v, w, w_idx;
     unsigned long int bn_size = this->bonded_nodes.size();
     Uniform u;
@@ -178,7 +178,7 @@ void Topology_builder::speckle(){
     }
 }
 
-void Topology_builder::agglutination_overclique() {
+void TopologyBuilder::agglutination_overclique() {
     Uniform u;
     unsigned long int w, v, w_idx, v_idx;
     unsigned long int bn_size = this->bonded_nodes.size();
@@ -224,7 +224,7 @@ void Topology_builder::agglutination_overclique() {
     }
 }
 
-void Topology_builder::agglutination(){
+void TopologyBuilder::agglutination(){
     //There ain't no overbond nodes
     if(this->unbonded_nodes_g.size() == 0){
         agglutination_underclique();
@@ -238,7 +238,7 @@ void Topology_builder::agglutination(){
 }
 
 
-void Topology_builder::other_connections(){
+void TopologyBuilder::other_connections(){
     Uniform u;
     unsigned long int number_of_nodes_to_link = 0;
     unsigned long int idx_v, idx_w, v, w, id_min, id_max;
@@ -276,6 +276,6 @@ void Topology_builder::other_connections(){
     }
 }
 
-Graph Topology_builder::get_g(){
+Graph TopologyBuilder::get_g(){
     return this->g;
 }

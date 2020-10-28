@@ -23,7 +23,8 @@ SOURCES += main.cpp \
     percolation.cpp \
     topology_builder.cpp \
     unionfind.cpp \
-    bfs.cpp
+    bfs.cpp \
+    topology_builder_configurational.cpp
 
 HEADERS += \
     q_exponential.h \
@@ -34,4 +35,5 @@ HEADERS += \
     percolation.h \
     topology_builder.h \
     unionfind.h \
-    bfs.h
+    bfs.h \
+    topology_builder_configurational.h

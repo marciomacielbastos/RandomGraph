@@ -7,7 +7,7 @@
 #include <functional>
 #include <algorithm>
 
-class Topology_builder{
+class TopologyBuilder{
 private:
     unsigned long int degree_1_counter;
     std::vector<unsigned long int> degree_list;
@@ -42,7 +42,7 @@ private:
 
 
 public:
-    Topology_builder(std::vector<unsigned long int> dl);
+    TopologyBuilder(std::vector<unsigned long int> dl);
     Graph get_g();
 
 };

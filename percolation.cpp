@@ -43,6 +43,19 @@ std::vector<unsigned long int> Percolation::get_degree_list(){
     return degree_list;
 }
 
+
+std::vector<unsigned long int> Percolation::get_modified_degree_list(){
+    std::vector<unsigned long int> degree_list;
+    unsigned long int j = 0;
+    while (j < this->N) {
+        unsigned long int val = this->probability_distribution->randint();
+        if (val > 1){
+            degree_list.push_back(val);
+            j++;
+        }
+    }
+    return degree_list;
+}
 /*******************************************************************/
 /*                         Calculus of <l>                         */
 /*******************************************************************/
@@ -116,6 +129,7 @@ std::vector<std::vector<double>> Percolation::percolation_molloy_reed_criterion(
                 biggest_component[i][0] = progress;
             }
 
+
             biggest_component[i][1] = static_cast<double>(uf.get_size_of_max_comp());
             tick_point += increment;
             i++;
@@ -128,12 +142,16 @@ std::vector<std::vector<double>> Percolation::percolation_molloy_reed_criterion(
         i++;
     }
     biggest_component.push_back({pc, static_cast<double>(biggest_in_pc)});
+    if( biggest_component[9998][0] < 1){
+        i--;
+        i++;
+    }
     return biggest_component;
 }
 
 std::vector<std::vector<double>> Percolation::percolation_molloy_reed(unsigned int number_of_samples){
 //    std::cout <<"[Percolation computation...]"<< std::endl;
-    unsigned long int number_of_checkpoints = 9999;
+    unsigned long int number_of_checkpoints = 9998;
     double pc_mu = 0;
     double bc_mu = 0;
     double mean_l = 0;
@@ -142,7 +160,50 @@ std::vector<std::vector<double>> Percolation::percolation_molloy_reed(unsigned i
     for(unsigned long int n = 0; n < number_of_samples; n++) {
         progress_bar(increment, n,  number_of_samples);
         std::vector<unsigned long int> degree_list = get_degree_list();
-        Topology_builder tb = Topology_builder(degree_list);
+        TopologyBuilder tb = TopologyBuilder(degree_list);
+        Graph g = tb.get_g();
+        std::thread t (&Percolation::t_geodesical_distance, this, std::ref(mean_l), g.get_adj_matrix());
+        //input = list of (Fraction of nodes, size of biggest component)
+        std::vector<std::vector<double>> input = percolation_molloy_reed_criterion(g.get_link_list(), number_of_checkpoints);
+        for(unsigned int j = 0; j < molloy_reed_p_results.size() ; ++j){
+            pc_mu = molloy_reed_p_results[j][0];
+            bc_mu = molloy_reed_p_results[j][1];
+            //Mean
+            molloy_reed_p_results[j][0] = molloy_reed_p_results[j][0] + ((input[j][0] - molloy_reed_p_results[j][0]) / (n + 1));
+            molloy_reed_p_results[j][1] = molloy_reed_p_results[j][1] + ((input[j][1] - molloy_reed_p_results[j][1]) / (n + 1));
+            //Var
+            molloy_reed_p_results[j][2] = molloy_reed_p_results[j][2] + (input[j][0] - pc_mu) * (input[j][0] - molloy_reed_p_results[j][0]);
+            molloy_reed_p_results[j][3] = molloy_reed_p_results[j][3] + (input[j][1] - bc_mu) * (input[j][1] - molloy_reed_p_results[j][1]);
+        }
+
+        t.join();
+
+    }
+    progress_bar(increment, number_of_samples,  number_of_samples);
+    mean_l /= number_of_samples;
+    molloy_reed_p_results.push_back({mean_l, -1, -1, -1});
+    this->molloy_reed_results = molloy_reed_p_results;
+    return molloy_reed_p_results;
+}
+
+std::vector<std::vector<double>> Percolation::percolation_configurational(unsigned int number_of_samples){
+//    std::cout <<"[Percolation computation...]"<< std::endl;
+    unsigned long int number_of_checkpoints = 9998;
+    double pc_mu = 0;
+    double bc_mu = 0;
+    double mean_l = 0;
+    std::vector<std::vector<double>> molloy_reed_p_results(number_of_checkpoints + 2, {0, 0, 0, 0}); // (Fraction of nodes, size of biggest component) {pc_mu, bc_mu, pc_var, bc_var}
+    double increment = 1 / static_cast<double>(number_of_samples);
+    for(unsigned long int n = 0; n < number_of_samples; n++) {
+        progress_bar(increment, n,  number_of_samples);
+        std::vector<unsigned long int> degree_list = get_modified_degree_list();
+        TopologyBuilderConfigurational tb = TopologyBuilderConfigurational(degree_list);
+        tb.random_link();
+        while (!tb.is_built()) {
+            degree_list = get_modified_degree_list();
+            tb = TopologyBuilderConfigurational(degree_list);
+            tb.random_link();
+        }
         Graph g = tb.get_g();
         std::thread t (&Percolation::t_geodesical_distance, this, std::ref(mean_l), g.get_adj_matrix());
         //input = list of (Fraction of nodes, size of biggest component)

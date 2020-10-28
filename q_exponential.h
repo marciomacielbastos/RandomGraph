@@ -6,7 +6,7 @@
 #include <vector>
 #include <cmath>
 
-class q_Exponential : public Distribution{
+class qExponential : public Distribution{
 private:
     double lambda;
     double q;
@@ -15,8 +15,8 @@ private:
     std::vector<double> cdf;
 
 public:
-    q_Exponential();
-    q_Exponential(double lambda, double q, unsigned long int xmin, unsigned long int xmax);
+    qExponential();
+    qExponential(double lambda, double q, unsigned long int xmin, unsigned long int xmax);
     double eq(double x);
     double pdf(unsigned long int x);
     void build_dist();

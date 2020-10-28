@@ -10,6 +10,7 @@
 #include <bfs.h>
 #include <thread>
 #include <topology_builder.h>
+#include <topology_builder_configurational.h>
 #include <functional>
 #include <fstream>
 #include <sstream>
@@ -24,6 +25,7 @@ private:
     Graph g;
     void progress_bar(double progress, unsigned long int i, unsigned long int n);
     std::vector<unsigned long int> get_degree_list();
+    std::vector<unsigned long int> get_modified_degree_list();
     double get_q(double gamma);
     double geodesical_distance_computation(std::vector<std::vector<unsigned long int>> adj_matrix);
     void t_geodesical_distance(double& mean_l, std::vector<std::vector<unsigned long int>> adj_matrix);
@@ -35,6 +37,7 @@ public:
     Percolation(Distribution * probability_distribution, unsigned long int  N, int thread_id);
 
     std::vector<std::vector<double>> percolation_molloy_reed(unsigned int num_rep);
+    std::vector<std::vector<double>> percolation_configurational(unsigned int number_of_samples);
 
     void write_percolation_results(const std::string& filename);
 
