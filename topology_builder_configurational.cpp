@@ -48,9 +48,9 @@ void TopologyBuilderConfigurational::update_algolist(std::vector<unsigned long i
     }
 }
 
-bool TopologyBuilderConfigurational::link(std::vector<unsigned long int> &list, unsigned long v, unsigned long w) {
-    if (this->g.link(v, w)) {
-        update_algolist(list, v, w);
+bool TopologyBuilderConfigurational::link(std::vector<unsigned long int> &list, unsigned long v_idx, unsigned long w_idx) {
+    if (this->g.link(list[v_idx], list[w_idx])) {
+        update_algolist(list, v_idx, w_idx);
         return true;
     }
     else {
@@ -81,7 +81,7 @@ bool TopologyBuilderConfigurational::random_link() {
             w = algorithm_list[w_idx];
             counter++;
         }
-        link(algorithm_list, v, w);
+        link(algorithm_list, v_idx, w_idx);
     }
     this->built = true;
     return true;

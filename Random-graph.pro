@@ -24,7 +24,8 @@ SOURCES += main.cpp \
     topology_builder.cpp \
     unionfind.cpp \
     bfs.cpp \
-    topology_builder_configurational.cpp
+    topology_builder_configurational.cpp \
+    heap.cpp
 
 HEADERS += \
     q_exponential.h \
@@ -36,4 +37,5 @@ HEADERS += \
     topology_builder.h \
     unionfind.h \
     bfs.h \
-    topology_builder_configurational.h
+    topology_builder_configurational.h \
+    heap.h

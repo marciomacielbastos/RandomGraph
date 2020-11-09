@@ -67,9 +67,10 @@ void write_links (std::vector<std::pair<long unsigned int, long unsigned int> > 
     myfile.close();
 }
 
-void calc (unsigned int num_rep, int i, unsigned long int f, double gamma, double lambda, int kmin) {
+void calc (unsigned int num_rep, int i, unsigned long int f, double gamma, double lambda, int kmin, unsigned long int noc) {
     std::string folder = "/home/marcio/RandonGraph/Random-graph/output/";
     unsigned long int N = static_cast<unsigned long int>(1E3);
+    noc = (noc * N) - 2;
     N *= f;
     double q = (gamma + 1) / gamma;
     unsigned long int n = std::log2(f);
@@ -82,14 +83,15 @@ void calc (unsigned int num_rep, int i, unsigned long int f, double gamma, doubl
     std::cout <<"N: 2^"<<n<<"E3"<<", (q="<< q <<", lambda="<< lambda << "), kmin: "<<kmin<< std::endl;
     out_string = ss.str();
     qExponential q_exp = qExponential(lambda, q, kmin, N - 1);
-    Percolation p(&q_exp, N);
+    Percolation p(&q_exp, N, noc);
     p.percolation_molloy_reed(num_rep);
     p.write_percolation_results(folder + out_string + ".txt");
 }
 
-void calc_config (unsigned int num_rep, int i, unsigned long int f, double gamma, double lambda, int kmin) {
+void calc_config (unsigned int num_rep, int i, unsigned long int f, double gamma, double lambda, int kmin, unsigned long int noc) {
     std::string folder = "/home/marcio/RandonGraph/Random-graph/output/";
-    unsigned long int N = static_cast<unsigned long int>(1E3);
+    unsigned long int N = static_cast<unsigned long int>(1E2);
+    noc = (noc * N) - 2;
     N *= f;
     double q = (gamma + 1) / gamma;
     unsigned long int n = std::log2(f);
@@ -102,9 +104,9 @@ void calc_config (unsigned int num_rep, int i, unsigned long int f, double gamma
     std::cout <<"N: 2^"<<n<<"E3"<<", (q="<< q <<", lambda="<< lambda << "), kmin: "<<kmin<< std::endl;
     out_string = ss.str();
     qExponential q_exp = qExponential(lambda, q, kmin, N - 1);
-    Percolation p(&q_exp, N);
+    Percolation p(&q_exp, N, noc);
     p.percolation_configurational(num_rep);
-    p.write_percolation_results(folder + out_string + ".txt");
+        p.write_percolation_results(folder + out_string + ".txt");
 }
 
 void calc_t (unsigned int num_rep, int i, unsigned long int f, double gamma, double lambda, int kmin, int thread_id) {
@@ -166,22 +168,36 @@ int main(int argc, char *argv[]){
     /*            Parameters          */
     /**********************************/
 
-    unsigned int num_rep = 100;
+    unsigned int num_rep = 500;
     int kmin = 2;
     double gamma_values[5] = {2.5, 3.0, 3.5, 4.0 , 4.5};
     double lambda_values[5] = {1.751, 0.551, 0.334, 0.26, 0.223};
-
-    for(int i = 0; i < 5; i++){
-        for (int j = 0; j < 5; j++) {
-            std::cout <<"start (f: "<< f[j] <<" | i: "<< i << ")" << std::endl;
-            std::vector<unsigned long int> degree_list = test_degree_list(i, f[j], gamma_values[i], lambda_values[0], kmin);
-            std::cout <<"test_degree_list done!"<< std::endl;
-            test_topology_conf(degree_list, i, f[j], kmin);
-            std::cout <<"test_topology_conf done!"<< std::endl;
-            calc_config(num_rep, i, f[j], gamma_values[i], lambda_values[0], kmin);
-            std::cout <<"calc_config done!"<< std::endl;
-        }
+    unsigned long int noc = f[0];
+    std::vector<int> test = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+    std::vector<int *> position;
+    int *p = test.data();
+    position.push_back(p);
+    for(std::vector<int>::iterator i = test.begin() + 1; i != test.end(); ++i){
+        position.push_back(++p);
     }
+    test.pop_back();
+    test.
+    int k = 0;
+    for(std::vector<int>::iterator i = test.begin(); i != test.end(); i++) {
+        std::cout << *i << ", " << *position[k] <<std::endl;
+        k++;
+    }
+//    for(int i = 0; i < 5; i++){
+//        for (int j = 0; j < 5; j++) {
+//            std::cout <<"start (f: "<< f[j] <<" | i: "<< i << ")" << std::endl;
+////            std::vector<unsigned long int> degree_list = test_degree_list(i, f[j], gamma_values[i], lambda_values[0], kmin);
+//            std::cout <<"test_degree_list done!"<< std::endl;
+////            test_topology_conf(degree_list, i, f[j], kmin);
+//            std::cout <<"test_topology_conf done!"<< std::endl;
+//            calc_config(num_rep, i, f[j], gamma_values[i], lambda_values[0], kmin, noc);
+//            std::cout <<"calc_config done!"<< std::endl;
+//        }
+//    }
 
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);

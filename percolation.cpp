@@ -1,13 +1,15 @@
 #include "percolation.h"
 
-Percolation::Percolation(Distribution * probability_distribution, unsigned long int  N) {
+Percolation::Percolation(Distribution * probability_distribution, unsigned long int  N, unsigned long int  noc) {
     this->probability_distribution = probability_distribution;
     this->N = N;
+    this->noc = noc;
 }
 
-Percolation::Percolation(Distribution * probability_distribution, unsigned long int  N, int thread_id) {
+Percolation::Percolation(Distribution * probability_distribution, unsigned long int  N, unsigned long int  noc, int thread_id) {
     this->probability_distribution = probability_distribution;
     this->N = N;
+    this->noc = noc;
     this->thread_id = thread_id;
 }
 
@@ -30,13 +32,13 @@ void Percolation::progress_bar(double increment, unsigned long int i, unsigned l
     }
 }
 
-double Percolation::get_q(double gamma){
+double Percolation::get_q(double gamma) {
     return (gamma + 1) / gamma;
 }
 
-std::vector<unsigned long int> Percolation::get_degree_list(){
+std::vector<unsigned long int> Percolation::get_degree_list() {
     std::vector<unsigned long int> degree_list;
-    for(unsigned long int j = 0; j < this->N; j++){
+    for (unsigned long int j = 0; j < this->N; j++) {
         unsigned long int val = this->probability_distribution->randint();
         degree_list.push_back(val);
     }
@@ -49,7 +51,7 @@ std::vector<unsigned long int> Percolation::get_modified_degree_list(){
     unsigned long int j = 0;
     while (j < this->N) {
         unsigned long int val = this->probability_distribution->randint();
-        if (val > 1){
+        if (val > 1) {
             degree_list.push_back(val);
             j++;
         }
@@ -67,12 +69,50 @@ void Percolation::t_geodesical_distance(double& mean_l, std::vector<std::vector<
     mean_l += bfs.avg_geo_dist(number_of_samples, adj_matrix);
 }
 
+/*****************************************************************/
+/*                       K-core decomposition                    */
+/*****************************************************************/
+void Percolation::get_k_core(unsigned long int k,
+                             std::vector<std::pair<unsigned long, unsigned long>> &id_degree_vect,
+                             std::vector<std::vector<unsigned long int>> adj_matrix) {
+
+    for (std::vector<std::pair<unsigned long, unsigned long>>::reverse_iterator i = id_degree_vect.rbegin(); i != id_degree_vect.rend(); ++i ) {
+        if(i->second <= k) {
+
+        }
+    }
+}
+
+
+std::vector<unsigned long int> Percolation::k_core_decomposition(Graph & g) {
+    unsigned long int size = g.get_adj_matrix().size();
+    std::vector<unsigned long int> degrees;
+    std::vector<std::pair<unsigned long int, unsigned long int>> network_size;
+    for (unsigned long int i = 0; i < size; ++i) {
+        degrees.push_back(g.get_adj_matrix()[i].size());
+    }
+    Heap heap(degrees);
+    unsigned long int k = 1;
+    while (heap.size() > 0) {
+        root_degree = heap.get_root_degree();
+        while (root_degree <= k) {
+            root = heap.pop();
+            for (unsigned long int i = 0; i < g.get_adj_matrix()[root].size(); ++i) {
+                heap.update(g.get_adj_matrix()[root][i]);
+            }
+        }
+        std::pair<unsigned long int, unsigned long int> p(k, heap.size());
+        network_size.push_back(p);
+        k++;
+    }
+}
+
 
 /******************************************************************/
 /*                         Calculus of pc                         */
 /******************************************************************/
 std::vector<std::vector<double>> Percolation::percolation_molloy_reed_criterion(std::vector<std::pair<unsigned long int, unsigned long int>> list_of_links,
-                                                                                             unsigned long int number_of_checkpoints){
+                                                                                             unsigned long int number_of_checkpoints) {
     /* "number_of_checkpoints" represents how manny save ticks do you want on your percolation record, if your network
        is too big its better to reduce this A LOT! (you will execute as many outputs as this value) */
 
@@ -110,7 +150,7 @@ std::vector<std::vector<double>> Percolation::percolation_molloy_reed_criterion(
         molloy_reed_coef = sum_of_squared_k / (2 * number_of_links_added);
 
         // Check if the fraction of nodes added reach the Molloy-Reed criterion limit [<k²>/<k> = 2]
-        if((molloy_reed_coef >= 2) && key){
+        if ((molloy_reed_coef >= 2) && key) {
             pc = progress;
             biggest_in_pc = uf.get_size_of_max_comp();
             key = false;
@@ -121,8 +161,8 @@ std::vector<std::vector<double>> Percolation::percolation_molloy_reed_criterion(
         /*                      Percolation data                      */
         /*                                                            */
         /**************************************************************/
-        if((progress * total >= tick_point) || list_of_links.empty()){
-            if(list_of_links.empty()) {
+        if ((progress * total >= tick_point) || list_of_links.empty()) {
+            if (list_of_links.empty()) {
                 biggest_component[i][0] = 1;
             }
             else {
@@ -137,19 +177,11 @@ std::vector<std::vector<double>> Percolation::percolation_molloy_reed_criterion(
     }
 
     //Add the critical fraction of added nodes and biggest component in [<k²>/<k> = 2]
-    if(biggest_component[number_of_checkpoints][0] == 0){
-        int i = 0;
-        i++;
-    }
     biggest_component.push_back({pc, static_cast<double>(biggest_in_pc)});
-    if( biggest_component[9998][0] < 1){
-        i--;
-        i++;
-    }
     return biggest_component;
 }
 
-std::vector<std::vector<double>> Percolation::percolation_molloy_reed(unsigned int number_of_samples){
+std::vector<std::vector<double>> Percolation::percolation_molloy_reed(unsigned int number_of_samples) {
 //    std::cout <<"[Percolation computation...]"<< std::endl;
     unsigned long int number_of_checkpoints = 9998;
     double pc_mu = 0;
@@ -157,7 +189,7 @@ std::vector<std::vector<double>> Percolation::percolation_molloy_reed(unsigned i
     double mean_l = 0;
     std::vector<std::vector<double>> molloy_reed_p_results(number_of_checkpoints + 2, {0, 0, 0, 0}); // (Fraction of nodes, size of biggest component) {pc_mu, bc_mu, pc_var, bc_var}
     double increment = 1 / static_cast<double>(number_of_samples);
-    for(unsigned long int n = 0; n < number_of_samples; n++) {
+    for (unsigned long int n = 0; n < number_of_samples; n++) {
         progress_bar(increment, n,  number_of_samples);
         std::vector<unsigned long int> degree_list = get_degree_list();
         TopologyBuilder tb = TopologyBuilder(degree_list);
@@ -165,7 +197,7 @@ std::vector<std::vector<double>> Percolation::percolation_molloy_reed(unsigned i
         std::thread t (&Percolation::t_geodesical_distance, this, std::ref(mean_l), g.get_adj_matrix());
         //input = list of (Fraction of nodes, size of biggest component)
         std::vector<std::vector<double>> input = percolation_molloy_reed_criterion(g.get_link_list(), number_of_checkpoints);
-        for(unsigned int j = 0; j < molloy_reed_p_results.size() ; ++j){
+        for (unsigned int j = 0; j < molloy_reed_p_results.size() ; ++j) {
             pc_mu = molloy_reed_p_results[j][0];
             bc_mu = molloy_reed_p_results[j][1];
             //Mean
@@ -186,15 +218,15 @@ std::vector<std::vector<double>> Percolation::percolation_molloy_reed(unsigned i
     return molloy_reed_p_results;
 }
 
-std::vector<std::vector<double>> Percolation::percolation_configurational(unsigned int number_of_samples){
+std::vector<std::vector<double>> Percolation::percolation_configurational(unsigned int number_of_samples) {
 //    std::cout <<"[Percolation computation...]"<< std::endl;
-    unsigned long int number_of_checkpoints = 9998;
+    unsigned long int number_of_checkpoints = this->noc;
     double pc_mu = 0;
     double bc_mu = 0;
     double mean_l = 0;
     std::vector<std::vector<double>> molloy_reed_p_results(number_of_checkpoints + 2, {0, 0, 0, 0}); // (Fraction of nodes, size of biggest component) {pc_mu, bc_mu, pc_var, bc_var}
     double increment = 1 / static_cast<double>(number_of_samples);
-    for(unsigned long int n = 0; n < number_of_samples; n++) {
+    for (unsigned long int n = 0; n < number_of_samples; n++) {
         progress_bar(increment, n,  number_of_samples);
         std::vector<unsigned long int> degree_list = get_modified_degree_list();
         TopologyBuilderConfigurational tb = TopologyBuilderConfigurational(degree_list);
@@ -208,7 +240,7 @@ std::vector<std::vector<double>> Percolation::percolation_configurational(unsign
         std::thread t (&Percolation::t_geodesical_distance, this, std::ref(mean_l), g.get_adj_matrix());
         //input = list of (Fraction of nodes, size of biggest component)
         std::vector<std::vector<double>> input = percolation_molloy_reed_criterion(g.get_link_list(), number_of_checkpoints);
-        for(unsigned int j = 0; j < molloy_reed_p_results.size() ; ++j){
+        for (unsigned int j = 0; j < molloy_reed_p_results.size() ; ++j) {
             pc_mu = molloy_reed_p_results[j][0];
             bc_mu = molloy_reed_p_results[j][1];
             //Mean
@@ -234,12 +266,12 @@ std::vector<std::vector<double>> Percolation::percolation_configurational(unsign
 /*********************************************************/
 
 
-void Percolation::write_percolation_results(const std::string& filename){
+void Percolation::write_percolation_results(const std::string& filename) {
     std::ofstream myfile;
     myfile.open (filename);
-    for (auto value : this->molloy_reed_results){
-        for(unsigned long int i = 0;  i < value.size(); i++ ){
-            if(i < value.size() - 1) myfile << value[i] << ",";
+    for (auto value : this->molloy_reed_results) {
+        for (unsigned long int i = 0;  i < value.size(); i++ ) {
+            if (i < value.size() - 1) myfile << value[i] << ",";
             else {
                 myfile << value[i] << std::endl;
             }
