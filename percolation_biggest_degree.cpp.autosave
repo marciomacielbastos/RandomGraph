@@ -1,0 +1,5 @@
+#include "percolation_biggest_degree.h"
+
+Percolation_biggest_degree::Percolation_biggest_degree() {
+
+}

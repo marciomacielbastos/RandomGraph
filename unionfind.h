@@ -19,7 +19,7 @@ public:
     std::vector<unsigned long int> get_size_of_components();
     unsigned long int get_number_of_components();
     unsigned long int get_size_of_max_comp();
-    std::pair<unsigned long int, unsigned long int> get_bigger_comp_id_size();
+    std::pair<unsigned long int, unsigned long int> get_biggest_comp_id_size();
 };
 
 #endif // UNIONFIND_H

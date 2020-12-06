@@ -8,48 +8,55 @@
 #include <iostream>
 #include <unionfind.h>
 #include <bfs.h>
-#include <heap.h>
+#include <heap_asc.h>
+#include <betweenness.h>
 #include <thread>
 #include <topology_builder.h>
 #include <topology_builder_configurational.h>
 #include <functional>
 #include <fstream>
 #include <sstream>
+#include <percolation_betweenness.h>
+#include <percolation_edge.h>
+#include <percolation_kcore.h>
+#include <percolation_degree.h>
+
 
 
 class Percolation{
 private:
-    int thread_id;
     unsigned long int  N;
     unsigned long int noc;
-    std::vector<std::vector<double>> molloy_reed_results;
+
+    double mean_l;
+    std::vector<std::vector<double>> pb_result;
+    std::vector<std::vector<double>> pk_result;
+    std::vector<std::vector<double>> pd_result;
+    std::vector<std::vector<double>> pe_result;
+
     Distribution * probability_distribution;  
-    Graph g;
     void progress_bar(double progress, unsigned long int i, unsigned long int n);
     std::vector<unsigned long int> get_degree_list();
     std::vector<unsigned long int> get_modified_degree_list();
     double get_q(double gamma);
-    double geodesical_distance_computation(std::vector<std::vector<unsigned long int>> adj_matrix);
-    void t_geodesical_distance(double& mean_l, std::vector<std::vector<unsigned long int>> adj_matrix);
-    std::vector<std::vector<double>> percolation_molloy_reed_criterion(std::vector<std::pair<unsigned long int, unsigned long int>> list_of_links,
-                                                                       unsigned long int number_of_samples);
-    bool sortbysec(const pair<unsigned long, unsigned long> &a, const pair<unsigned long, unsigned long> &b);
-    std::vector<unsigned long int> k_core_decomposition(std::vector<std::pair<unsigned long int, unsigned long int>> id_degree_list,
-                                                          std::vector<std::vector<unsigned long int>> adj_matrix);
+
+    void update_percolation_list(unsigned long n, unsigned long int j, std::vector<std::vector<double>> &results, std::vector<double> input);
+    void update_percolation_list(unsigned long n, unsigned long int j, std::vector<std::vector<double>> &results, double input);
+    void mean_std_percolation(unsigned long n, std::vector<std::vector<double>> &results, std::vector<std::vector<double>> input);
+    void mean_std_percolation(unsigned long n, std::vector<std::vector<double>> &results, std::vector<double> input);
+
+    void remove_node(unsigned long int idx, std::vector<std::vector<unsigned long int>> & adj_matrix);
 
 public:
 
+    Percolation();
     Percolation(Distribution * probability_distribution, unsigned long int  N, unsigned long noc);
-    Percolation(Distribution * probability_distribution, unsigned long int  N, unsigned long noc, int thread_id);
-
-    std::vector<std::vector<double>> percolation_molloy_reed(unsigned int num_rep);
-    std::vector<std::vector<double>> percolation_configurational(unsigned int number_of_samples);
-
-    void write_percolation_results(const std::string& filename);
-
-
-
-
+    void percolation_configurational(unsigned int number_of_samples, unsigned long int n_threads);
+    std::vector<std::vector<double>> get_betweeness_result();
+    std::vector<std::vector<double>> get_kcore_result();
+    std::vector<std::vector<double>> get_degree_result();
+    std::vector<std::vector<double>> get_edge_result();
+    double get_mean_l();
 };
 
 #endif // PERCOLATION_H

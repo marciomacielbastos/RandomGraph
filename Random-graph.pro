@@ -17,7 +17,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += main.cpp \
     q_exponential.cpp \
     uniform.cpp \
-    distribution.cpp \
     quick_search.cpp \
     graph.cpp \
     percolation.cpp \
@@ -25,7 +24,12 @@ SOURCES += main.cpp \
     unionfind.cpp \
     bfs.cpp \
     topology_builder_configurational.cpp \
-    heap.cpp
+    zipf.cpp \
+    betweenness.cpp \
+    percolation_kcore.cpp \
+    percolation_betweenness.cpp \
+    percolation_edge.cpp \
+    percolation_degree.cpp
 
 HEADERS += \
     q_exponential.h \
@@ -38,4 +42,11 @@ HEADERS += \
     unionfind.h \
     bfs.h \
     topology_builder_configurational.h \
-    heap.h
+    zipf.h \
+    betweenness.h \
+    percolation_kcore.h \
+    percolation_betweenness.h \
+    heap_desc.h \
+    heap_asc.h \
+    percolation_edge.h \
+    percolation_degree.h

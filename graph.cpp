@@ -9,6 +9,7 @@ Graph::Graph(unsigned long int N){
         std::vector<unsigned long int> v;
         this->adj_matrix.push_back(v);
     }
+    this->N = N;
 }
 
 bool Graph::is_connected(unsigned long v, unsigned long w) {
@@ -32,6 +33,9 @@ bool Graph::is_connected(unsigned long v, unsigned long w) {
 }
 
 bool Graph::link(unsigned long v, unsigned long w) {
+    if(v > this->N || w> this->N) {
+        int i =0;
+    }
     if(!is_connected(v, w)){
         std::pair<unsigned long int, unsigned long int> edge(v, w);
         this->link_list.push_back(edge);
@@ -58,4 +62,8 @@ std::vector<unsigned long int> Graph::get_degree_distribution() {
         dist.push_back(this->adj_matrix[i].size());
     }
     return dist;
+}
+
+unsigned long int Graph::get_n() {
+    return this->N;
 }

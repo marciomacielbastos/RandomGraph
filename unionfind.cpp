@@ -67,6 +67,12 @@ unsigned long int UnionFind::get_size_of_max_comp(){
     return this->bigger.second;
 }
 
-std::pair<unsigned long int, unsigned long int> UnionFind::get_bigger_comp_id_size(){
+/**
+* Return the id of the node and the size of the biggest network component.
+* The id is linked to the original node after successive edge addings.
+ * @param Null.
+ * @return a pair(id, size).
+ */
+std::pair<unsigned long int, unsigned long int> UnionFind::get_biggest_comp_id_size(){
     return this->bigger;
 }
