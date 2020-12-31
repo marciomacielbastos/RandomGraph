@@ -37,7 +37,6 @@ std::vector<unsigned long int> Percolation::get_degree_list() {
     return degree_list;
 }
 
-
 std::vector<unsigned long int> Percolation::get_modified_degree_list(){
     std::vector<unsigned long int> degree_list;
     unsigned long int j = 0;
@@ -49,6 +48,13 @@ std::vector<unsigned long int> Percolation::get_modified_degree_list(){
         }
     }
     return degree_list;
+}
+
+void Percolation::t_geodesical_distance(double& mean_l, std::vector<std::vector<unsigned long int>> adj_matrix) {
+    Bfs bfs = Bfs();
+    unsigned long int number_of_samples = 1000;
+    number_of_samples = std::min(number_of_samples, this->N);
+    mean_l += bfs.avg_geo_dist(number_of_samples, adj_matrix);
 }
 
 void Percolation::update_percolation_list(unsigned long n, unsigned long j,
@@ -103,10 +109,11 @@ void Percolation::mean_std_percolation(unsigned long int n,
 void Percolation::percolation_configurational(unsigned int number_of_samples, unsigned long int n_threads) {
     std::vector<double> partial_result;
     std::vector<std::vector<double>> partial_result_pe;
-    std::vector<std::vector<double>> pb_result(N, {0,0});
-    std::vector<std::vector<double>> pd_result(N, {0,0});
-    std::vector<std::vector<double>> pk_result(N, {0,0});
-    std::vector<std::vector<double>> pe_result(N, {0,0,0,0});
+//    std::vector<std::vector<double>> pb_result(this->noc, {0,0});
+    double mean_l;
+    std::vector<std::vector<double>> pd_result(this->N, {0,0});
+    std::vector<std::vector<double>> pk_result(this->N, {0,0});
+    std::vector<std::vector<double>> pe_result(this->noc, {0,0,0,0});
     double increment = 1 / static_cast<double>(number_of_samples);
     for (unsigned long int n = 0; n < number_of_samples; n++) {
         progress_bar(increment, n,  number_of_samples);
@@ -123,9 +130,9 @@ void Percolation::percolation_configurational(unsigned int number_of_samples, un
         }
         Graph G = tb.get_g();
 
-        Percolation_betweenness perc_betweenness;
-        Percolation_betweenness *pb;
-        pb = &perc_betweenness;
+//        Percolation_betweenness perc_betweenness;
+//        Percolation_betweenness *pb;
+//        pb = &perc_betweenness;
         Percolation_degree perc_degree;
         Percolation_degree *pd;
         pd = &perc_degree;
@@ -134,7 +141,8 @@ void Percolation::percolation_configurational(unsigned int number_of_samples, un
         pk = &perc_kcore;
         Percolation_edge pe(this->noc);
 
-        std::thread t1 (&Percolation_betweenness::percolation_betweenness, pb, std::ref(G), n_threads);
+//        std::thread t1 (&Percolation_betweenness::percolation_betweenness, pb, std::ref(G), n_threads);
+        std::thread t1 (&Percolation::t_geodesical_distance, this, std::ref(mean_l), G.get_adj_matrix());
         std::thread t2 (&Percolation_degree::malicious_attack, pd, std::ref(G));
         std::thread t3 (&Percolation_kcore::kcore_decomposition, pk, std::ref(G));
         pe.percolation_molloy_reed_criterion(G);
@@ -143,9 +151,9 @@ void Percolation::percolation_configurational(unsigned int number_of_samples, un
         t2.join();
         t3.join();
 
-        partial_result = pb->get_result();
-        this->mean_l = pb->get_mean_l();
-        mean_std_percolation(n, pb_result, partial_result);
+//        partial_result = pb->get_result();
+//        this->mean_l += pb->get_mean_l();
+//        mean_std_percolation(n, pb_result, partial_result);
         partial_result = pd->get_result();
         mean_std_percolation(n, pd_result, partial_result);
         partial_result = pk->get_result();
@@ -153,15 +161,15 @@ void Percolation::percolation_configurational(unsigned int number_of_samples, un
         partial_result_pe = pe.get_result();
         mean_std_percolation(n, pe_result, partial_result_pe);
     }
-    this->mean_l /= number_of_samples;
-    this->pb_result = pb_result;
+    this->mean_l = mean_l / number_of_samples;
+//    this->pb_result = pb_result;
     this->pk_result = pk_result;
     this->pd_result = pd_result;
     this->pe_result = pe_result;
     progress_bar(increment, number_of_samples,  number_of_samples);
 }
 
-std::vector<std::vector<double>> Percolation::get_betweeness_result() {
+std::vector<std::vector<double>> Percolation::get_betweenness_result() {
     return this->pb_result;
 }
 

@@ -44,7 +44,7 @@ private:
     void update_percolation_list(unsigned long n, unsigned long int j, std::vector<std::vector<double>> &results, double input);
     void mean_std_percolation(unsigned long n, std::vector<std::vector<double>> &results, std::vector<std::vector<double>> input);
     void mean_std_percolation(unsigned long n, std::vector<std::vector<double>> &results, std::vector<double> input);
-
+    void t_geodesical_distance(double& mean_l, std::vector<std::vector<unsigned long int>> adj_matrix);
     void remove_node(unsigned long int idx, std::vector<std::vector<unsigned long int>> & adj_matrix);
 
 public:
@@ -52,7 +52,7 @@ public:
     Percolation();
     Percolation(Distribution * probability_distribution, unsigned long int  N, unsigned long noc);
     void percolation_configurational(unsigned int number_of_samples, unsigned long int n_threads);
-    std::vector<std::vector<double>> get_betweeness_result();
+    std::vector<std::vector<double>> get_betweenness_result();
     std::vector<std::vector<double>> get_kcore_result();
     std::vector<std::vector<double>> get_degree_result();
     std::vector<std::vector<double>> get_edge_result();

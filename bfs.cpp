@@ -44,7 +44,7 @@ double Bfs::bfs(unsigned long s, std::vector<std::vector<unsigned long int>> adj
     return dsum/size;
 }
 
-double Bfs::avg_geo_dist(unsigned long int number_of_samples, std::vector<std::vector<unsigned long int>> adj_matrix){
+double Bfs::avg_geo_dist(unsigned long int number_of_samples, std::vector<std::vector<unsigned long int>> adj_matrix) {
     Uniform u;
     unsigned long s;
     unsigned long int N = adj_matrix.size();

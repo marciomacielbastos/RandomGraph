@@ -60,6 +60,24 @@ void write_links (std::vector<std::pair<long unsigned int, long unsigned int> > 
     myfile.close();
 }
 
+void write_sample (std::vector<std::pair<long unsigned int, long unsigned int> > link_list, int i, int j, unsigned long int N, int kmin) {
+    std::string folder ("/home/marcio/RandonGraph/Random-graph/output/links/sample");
+    unsigned long int n = std::log2(N);
+    std::string out_string;
+    std::stringstream ss;
+    ss << i;
+    ss << "_" << kmin;
+    ss << "_" << n;
+    ss << "_" << j;
+    out_string = ss.str();
+    std::ofstream myfile;
+    std::string filename = folder + out_string + ".txt";
+    myfile.open (filename);
+    for(unsigned long int i = 0;  i < link_list.size(); i++ ){
+        myfile << link_list[i].first << "," << link_list[i].second << std::endl;
+    }
+    myfile.close();
+}
 
 void write_results (std::string folder, std::vector<std::vector<double>> &result, int i, unsigned long int N, int kmin) {
     unsigned long int n = std::log2(N);
@@ -101,9 +119,9 @@ void write_mean_l (std::string folder, double mean_l, int i, unsigned long int N
 }
 
 void calc_config (unsigned int num_rep, int i, unsigned long int N, double gamma, double lambda, int kmin, unsigned long int noc, unsigned long int n_threads) {
-    std::string folder_1 = "/home/marcio/RandonGraph/Random-graph/output/percolation/betweeness/";
-    std::string folder_2 = "/home/marcio/RandonGraph/Random-graph/output/percolation/kcore/";
-    std::string folder_3 = "/home/marcio/RandonGraph/Random-graph/output/percolation/degree/";
+//    std::string folder_1 = "/home/marcio/RandonGraph/Random-graph/output/percolation/betweeness/";
+    std::string folder_2 = "/home/marcio/RandonGraph/Random-graph/output/percolation/degree/";
+    std::string folder_3 = "/home/marcio/RandonGraph/Random-graph/output/percolation/kcore/";
     std::string folder_4 = "/home/marcio/RandonGraph/Random-graph/output/percolation/edge/";
     std::string folder_5 = "/home/marcio/RandonGraph/Random-graph/output/meanl/";
     std::vector<std::vector<double>> result;
@@ -120,16 +138,16 @@ void calc_config (unsigned int num_rep, int i, unsigned long int N, double gamma
     qExponential q_exp = qExponential(lambda, q, kmin, N - 1);
     Percolation p(&q_exp, N, noc);
     p.percolation_configurational(num_rep, n_threads);
-    result = p.get_betweeness_result();
-    write_results(folder_1, result, i, N, kmin);
+//    result = p.get_betweeness_result();
+//    write_results(folder_1, result, i, N, kmin);
     result = p.get_degree_result();
     write_results(folder_2, result, i, N, kmin);
     result = p.get_kcore_result();
     write_results(folder_3, result, i, N, kmin);
     result = p.get_edge_result();
     write_results(folder_4, result, i, N, kmin);
-    q = p.get_mean_l();
-    write_mean_l(folder_5, q, i, N, kmin);
+        q = p.get_mean_l();
+        write_mean_l(folder_5, q, i, N, kmin);
 }
 
 std::vector<unsigned long int> test_degree_list(int i, unsigned long int N, double gamma, double lambda, int kmin){
@@ -159,32 +177,47 @@ void test_topology_conf(std::vector<unsigned long int> degree_list, int i, unsig
     tb.random_link();
     Graph G = tb.get_g();
 //    Betweenness btwnss(G, 5);
-    std::vector<std::pair<long unsigned int, long unsigned int>> link_list = tb.get_g().get_link_list();
+    std::vector<std::pair<long unsigned int, long unsigned int>> link_list = G.get_link_list();
     write_links(link_list, i, N, kmin);
+}
+
+void sample_graph(std::vector<unsigned long int> degree_list, int i, int j, unsigned long int N, int kmin){
+    TopologyBuilderConfigurational tb = TopologyBuilderConfigurational(degree_list);
+    tb.random_link();
+    Graph G = tb.get_g();
+//    Betweenness btwnss(G, 5);
+    std::vector<std::pair<long unsigned int, long unsigned int>> link_list = G.get_link_list();
+    write_sample(link_list, i, j, N, kmin);
 }
 
 int main(int argc, char *argv[]){
     auto start_ini = std::chrono::high_resolution_clock::now();
-//    unsigned long int N[10] = {1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144, 524288};
-    unsigned long int N[6] = {1024, 2048, 4096, 8192, 16384, 32768};
+    unsigned long int N[10] = {1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144, 524288};
+//    unsigned long int N[11] = {512, 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144, 524288};
+//    unsigned long int N[4] = {64, 128, 256, 512};
     /**********************************/
     /*            Parameters          */
     /**********************************/
 
-    unsigned int num_rep[5] = {70, 60, 50, 40, 30};
+    unsigned int num_rep[10] = {70, 60, 50, 40, 30, 30, 30, 30, 30, 30};
     int kmin = 2;
     double gamma_values[5] = {2.5, 3.0, 3.5, 4.0 , 4.5};
     double lambda_values[5] = {1.751, 0.551, 0.334, 0.26, 0.223};
     unsigned long int noc = N[0];
-    for(int i = 0; i < 5; i++){
+    for(int i = 0; i < 10; i++){
         for (int j = 0; j < 5; j++) {
+//            for(int k = 0; k < 10; k++) {
+//                std::vector<unsigned long int> degree_list = test_degree_list(i, N[j], gamma_values[i], lambda_values[1], kmin);
+//                sample_graph(degree_list, i, k, N[j], kmin);
+//            }
             auto start = std::chrono::high_resolution_clock::now();
-            std::cout <<"start (f: "<< N[j] <<" | i: "<< i << ")" << std::endl;
-            std::vector<unsigned long int> degree_list = test_degree_list(i, N[j], gamma_values[i], lambda_values[1], kmin);
+            std::cout <<"start (f: "<< N[i] <<" | i: "<< j << ")" << std::endl;
+            std::vector<unsigned long int> degree_list = test_degree_list(j, N[i], gamma_values[j], lambda_values[1], kmin);
             std::cout <<"test_degree_list done!"<< std::endl;
-            test_topology_conf(degree_list, i, N[j], kmin);
+            test_topology_conf(degree_list, j, N[i], kmin);
             std::cout <<"test_topology_conf done!"<< std::endl;
-            calc_config(num_rep[j], i, N[j], gamma_values[i], lambda_values[0], kmin, noc, 7);
+            calc_config(num_rep[i], j, N[i], gamma_values[j], 1, kmin, noc, 4);
+//            calc_config(1, j, N[i], gamma_values[j], lambda_values[1], kmin, noc, 4);
             std::cout <<"calc_config done!"<< std::endl;
             auto stop = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
