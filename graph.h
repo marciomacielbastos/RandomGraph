@@ -6,6 +6,10 @@
 #include <deque>
 #include <uniform.h>
 #include <bitset>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <string>
 
 
 class Graph{
@@ -17,6 +21,7 @@ private:
 public:
     Graph();
     Graph(unsigned long int N);
+    void read_file(std::string filename, char delim);
 //    Graph(Graph g);
     bool is_connected(unsigned long v, unsigned long w);
     bool link(unsigned long v, unsigned long w);

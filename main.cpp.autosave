@@ -188,13 +188,6 @@ int main(int argc, char *argv[]){
     std::vector<double> gamma_values = {2.5, 5.0, 3.5, 7.0 , 4.5};
     double lambda_values[5] = {1.751, 0.551, 0.334, 0.26, 0.223};
     unsigned long int noc = N[0];
-    Heap_desc<double> heap(gamma_values);
-    heap.update(1);
-    heap.update(1);
-    heap.pop();
-    heap.pop();
-    heap.pop();
-    heap.pop();
     Graph g (1042);
 //    g.read_file("/home/marcio/RandonGraph/Random-graph/output/simulated_graphs/2.5_1_2_10_1.txt", ',');
 //    for(int i = 0; i < 10; i++){

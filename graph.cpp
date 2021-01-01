@@ -12,6 +12,27 @@ Graph::Graph(unsigned long int N){
     this->N = N;
 }
 
+void Graph::read_file(std::string filename, char delim) {
+    std::string line;
+    std::ifstream myfile (filename);
+    std::string item;
+    unsigned long int edge[2];
+    if (myfile.is_open()) {
+      while ( std::getline (myfile,line) ) {
+        std::istringstream iss(line);
+        int i = 0;
+        while (std::getline(iss, item, delim)) {
+              edge[i] = std::stoul(item);
+              i++;
+        }
+        link(edge[0], edge[1]);
+      }
+      myfile.close();
+    }
+
+    else std::cout << "Unable to open file";
+}
+
 bool Graph::is_connected(unsigned long v, unsigned long w) {
     if(v == w){
         return true;
