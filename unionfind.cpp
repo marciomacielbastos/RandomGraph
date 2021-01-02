@@ -5,7 +5,7 @@ UnionFind::UnionFind(){
 }
 
 UnionFind::UnionFind(unsigned long int N){
-    std::pair<unsigned long int, unsigned long int> bigger (0, 0);
+    std::pair<unsigned long int, unsigned long int> bigger (0, 1);
     this->bigger =  bigger;
     this->count = N;
     for(unsigned long int i=0; i < N; i++){

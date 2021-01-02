@@ -11,6 +11,7 @@
 #include <heap_asc.h>
 #include <topology_builder.h>
 #include <percolation.h>
+#include <percolation_degree.h>
 #include <bitset>
 #include <stdlib.h>
 #include <thread>
@@ -185,18 +186,33 @@ int main(int argc, char *argv[]){
 
     unsigned int num_rep[10] = {120, 110, 100, 90, 80, 70, 60, 50, 40, 30};
     int kmin = 2;
-    std::vector<double> gamma_values = {2.5, 5.0, 3.5, 7.0 , 4.5};
+    double gamma_values[5] = {2.5, 5.0, 3.5, 7.0 , 4.5};
     double lambda_values[5] = {1.751, 0.551, 0.334, 0.26, 0.223};
+    double lambda = 1;
     unsigned long int noc = N[0];
-    Heap_desc<double> heap(gamma_values);
-    heap.update(1);
-    heap.update(1);
-    heap.pop();
-    heap.pop();
-    heap.pop();
-    heap.pop();
-    Graph g (1042);
-//    g.read_file("/home/marcio/RandonGraph/Random-graph/output/simulated_graphs/2.5_1_2_10_1.txt", ',');
+    unsigned long int n;;
+    std::string folder = "/home/marcio/RandonGraph/Random-graph/output/simulated_graphs/";
+    std::stringstream path;
+    for(int i = 0; i < 10; i++){
+        for (int j = 0; j < 5; j++) {
+            for (int k = 0; k < num_rep[i]; k++) {
+                Graph g (N[i]);
+                n = std::log2(N[i]);
+                path.str("");
+                path << folder;
+                path << gamma_values[j];
+                path << "_" << lambda;
+                path << "_" << kmin;
+                path << "_" << n;
+                path << "_" << k;
+                path << ".txt";
+                g.read_file(path.str(), ',');
+                Percolation_degree pd;
+                pd.malicious_attack(g);
+            }
+        }
+    }
+
 //    for(int i = 0; i < 10; i++){
 //        for (int j = 0; j < 5; j++) {
 
