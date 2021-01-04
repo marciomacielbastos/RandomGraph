@@ -1,12 +1,12 @@
-#ifndef ZIPF_H
-#define ZIPF_H
+#ifndef POWER_LAW_H
+#define POWER_LAW_H
 #include "distribution.h"
 #include "quick_search.h"
 #include "uniform.h"
 #include <vector>
 #include <cmath>
 
-class Zipf: public Distribution{
+class Power_law: public Distribution {
 private:
     double gamma;
     unsigned long int xmin = 0;
@@ -14,12 +14,12 @@ private:
     std::vector<double> cdf;
 
 public:
-    Zipf();
-    Zipf(double gamma, unsigned long int xmin, unsigned long int xmax);
+    Power_law();
+    Power_law(double gamma, unsigned long int xmin, unsigned long int xmax);
     double pdf(unsigned long int x);
     void build_dist();
     unsigned long int search_inverse_CDF(double p);
     unsigned long int randint();
 };
 
-#endif // ZIPF_H
+#endif // POWER_LAW_H

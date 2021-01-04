@@ -4,7 +4,7 @@
 #include <algorithm>    // std::min
 
 
-class Distribution{
+class Distribution {
 public:
    // pure virtual function
 //   virtual unsigned long int randint(unsigned long int xmin, unsigned long int max) = 0;

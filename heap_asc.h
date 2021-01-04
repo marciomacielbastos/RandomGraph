@@ -4,8 +4,7 @@
 
 
 template <class T>
-class Heap_asc
-{
+class Heap_asc {
 private:
     std::vector<T> values;
     std::vector<unsigned long int> positions;

@@ -1,7 +1,11 @@
 #include "percolation_betweenness.h"
 
 Percolation_betweenness::Percolation_betweenness() {
-    this->mean_l = 0;
+    this->n_threads = 1;
+}
+
+Percolation_betweenness::Percolation_betweenness(int n_threads) {
+    this->n_threads = n_threads;
 }
 
 void Percolation_betweenness::remove_node(unsigned long int idx, std::vector<std::vector<unsigned long int>> & adj_matrix) {
@@ -33,7 +37,7 @@ unsigned long int Percolation_betweenness::get_biggest(std::vector<std::vector<u
     return uf.get_biggest_comp_id_size().second;
 }
 
-void Percolation_betweenness::percolation_betweenness(Graph &G, unsigned long int n_threads) {
+void Percolation_betweenness::percolate(Graph &G) {
 
     std::vector<std::vector<unsigned long int>> adj_matrix = G.get_adj_matrix();
     unsigned long int N = G.get_n();
@@ -42,8 +46,8 @@ void Percolation_betweenness::percolation_betweenness(Graph &G, unsigned long in
 
     std::vector<double> result;
 
-    Betweenness b(G, n_threads);
-    this->mean_l = b.mean_l();
+    Betweenness b(G, this->n_threads);
+    this->other_result.push_back(b.mean_l());
     std::vector<double> betweenness = b.betweenness_centrality();
     Heap_desc<double> heap(betweenness);
 
@@ -60,7 +64,7 @@ void Percolation_betweenness::percolation_betweenness(Graph &G, unsigned long in
         remove_node(root, adj_matrix);
         size = get_biggest(adj_matrix);
         i++;
-        result.push_back(static_cast<double>(size) / N);
+        result.push_back(static_cast<double>(size) / static_cast<double>(N));
     }
     this->result = result;
 }
@@ -69,6 +73,6 @@ std::vector<double> Percolation_betweenness::get_result() {
     return this->result;
 }
 
-double Percolation_betweenness::get_mean_l() {
-    return this->mean_l;
+std::vector<double> Percolation_betweenness::get_other_result() {
+    return this->other_result;
 }

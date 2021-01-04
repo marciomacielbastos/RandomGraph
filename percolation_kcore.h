@@ -3,15 +3,14 @@
 #include <vector>
 #include <heap_asc.h>
 #include <graph.h>
+#include <percolation.h>
 
-class Percolation_kcore {
-private:
-    std::vector<double> result;
-
+class Percolation_kcore : public Percolation {
 public:
     Percolation_kcore();
-    void kcore_decomposition(Graph & G);
+    void percolate(Graph & G);
     std::vector<double> get_result();
+    std::vector<double> get_other_result();
 };
 
 #endif // KCORE_DECOMPOSITION_H

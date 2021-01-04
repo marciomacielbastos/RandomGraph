@@ -5,8 +5,7 @@
 #include <graph.h>
 #include "uniform.h"
 
-class Bfs
-{
+class Bfs {
 private:
     double average_path;
     std::vector<std::vector<unsigned long int>> P;

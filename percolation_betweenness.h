@@ -1,5 +1,6 @@
 #ifndef BETWEENNESS_PERCOLATION_H
 #define BETWEENNESS_PERCOLATION_H
+#include <percolation.h>
 #include <vector>
 #include <graph.h>
 #include <heap_desc.h>
@@ -7,16 +8,17 @@
 #include <unionfind.h>
 #include <thread>
 
-class Percolation_betweenness {
+class Percolation_betweenness : public Percolation {
 private:
-    double mean_l;
-    std::vector<double> result;
+    int n_threads;
     void remove_node(unsigned long int idx, std::vector<std::vector<unsigned long int>> & adj_matrix);
     unsigned long int get_biggest(std::vector<std::vector<unsigned long int>> & adj_matrix);
 public:
     Percolation_betweenness();
-    void percolation_betweenness(Graph &G, unsigned long int n_threads);
+    Percolation_betweenness(int n_threads);
+    void percolate(Graph &G);
     std::vector<double> get_result();
+    std::vector<double> get_other_result();
     double get_mean_l();
 };
 

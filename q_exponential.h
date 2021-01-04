@@ -6,7 +6,7 @@
 #include <vector>
 #include <cmath>
 
-class qExponential : public Distribution{
+class qExponential : public Distribution {
 private:
     double lambda;
     double q;

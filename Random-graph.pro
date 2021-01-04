@@ -19,17 +19,17 @@ SOURCES += main.cpp \
     uniform.cpp \
     quick_search.cpp \
     graph.cpp \
-    percolation.cpp \
     topology_builder.cpp \
     unionfind.cpp \
     bfs.cpp \
     topology_builder_configurational.cpp \
-    zipf.cpp \
     betweenness.cpp \
     percolation_kcore.cpp \
     percolation_betweenness.cpp \
     percolation_edge.cpp \
-    percolation_degree.cpp
+    percolation_degree.cpp \
+    statistical_calculus.cpp \
+    power_law.cpp
 
 HEADERS += \
     q_exponential.h \
@@ -42,11 +42,12 @@ HEADERS += \
     unionfind.h \
     bfs.h \
     topology_builder_configurational.h \
-    zipf.h \
     betweenness.h \
     percolation_kcore.h \
     percolation_betweenness.h \
     heap_desc.h \
     heap_asc.h \
     percolation_edge.h \
-    percolation_degree.h
+    percolation_degree.h \
+    statistical_calculus.h \
+    power_law.h

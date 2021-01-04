@@ -12,7 +12,7 @@
 #include <string>
 
 
-class Graph{
+class Graph {
 private:
     std::vector<std::pair<unsigned long int, unsigned long int>> link_list;
     std::vector<std::vector<unsigned long int>> adj_matrix;

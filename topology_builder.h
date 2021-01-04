@@ -7,7 +7,7 @@
 #include <functional>
 #include <algorithm>
 
-class TopologyBuilder{
+class TopologyBuilder {
 private:
     unsigned long int degree_1_counter;
     std::vector<unsigned long int> degree_list;

@@ -26,7 +26,7 @@ void Percolation_degree::remove_node(std::vector<std::vector<unsigned long>> &ad
     }
 }
 
-void Percolation_degree::malicious_attack(Graph & G) {
+void Percolation_degree::percolate(Graph & G) {
     unsigned long int N = G.get_n();
     unsigned long int root;
     unsigned long int neighbor;
@@ -77,10 +77,14 @@ void Percolation_degree::malicious_attack(Graph & G) {
         size_of_max_comp = static_cast<double>(uf.get_size_of_max_comp());
         network_size.push_back(size_of_max_comp/ static_cast<double>(N));
     }
-    network_size.push_back(0.0 / static_cast<double>(N));
+    network_size[network_size.size() - 1] = 0.0 / static_cast<double>(N);
     this->result = network_size;
 }
 
 std::vector<double> Percolation_degree::get_result() {
     return this->result;
+}
+
+std::vector<double> Percolation_degree::get_other_result() {
+    return this->other_result;
 }

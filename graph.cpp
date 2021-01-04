@@ -30,7 +30,9 @@ void Graph::read_file(std::string filename, char delim) {
       myfile.close();
     }
 
-    else std::cout << "Unable to open file";
+    else {
+        std::cout << "Unable to open file: " << filename << std::endl;
+    }
 }
 
 bool Graph::is_connected(unsigned long v, unsigned long w) {

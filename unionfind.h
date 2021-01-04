@@ -3,7 +3,7 @@
 #include <map>
 #include <vector>
 
-class UnionFind{
+class UnionFind {
 private:
     std::vector<unsigned long int> root;
     std::vector<unsigned long int> sizes;

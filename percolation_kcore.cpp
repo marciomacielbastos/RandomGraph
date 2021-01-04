@@ -4,7 +4,7 @@ Percolation_kcore::Percolation_kcore() {
 
 }
 
-void Percolation_kcore::kcore_decomposition(Graph & G) {
+void Percolation_kcore::percolate(Graph & G) {
     unsigned long int size = G.get_n();
     unsigned long int root;
     std::vector<double> k_size;
@@ -39,4 +39,8 @@ void Percolation_kcore::kcore_decomposition(Graph & G) {
 
 std::vector<double> Percolation_kcore::get_result() {
     return this->result;
+}
+
+std::vector<double> Percolation_kcore::get_other_result() {
+    return this->other_result;
 }

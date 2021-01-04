@@ -3,8 +3,7 @@
 #include <vector>
 
 
-class QuickSearch
-{
+class QuickSearch {
 public:
     QuickSearch();
     static unsigned long int search(const std::vector<double>& list, double value, unsigned long int j_min, unsigned long int j_max);

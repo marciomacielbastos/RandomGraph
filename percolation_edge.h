@@ -3,16 +3,15 @@
 #include <graph.h>
 #include <unionfind.h>
 #include <vector>
+#include <percolation.h>
 
-class Percolation_edge {
-private:
-    unsigned long int noc;
-    std::vector<std::vector<double>> result;
-
+class Percolation_edge : public Percolation {
 public:
+    Percolation_edge();
     Percolation_edge(unsigned long int number_of_checkpoints);
-    void percolation_molloy_reed_criterion(Graph & g);
-    std::vector<std::vector<double>> get_result();
+    void percolate(Graph &G);
+    std::vector<double> get_result();
+    std::vector<double> get_other_result();
 };
 
 #endif // PERCOLATION_EDGE_ADD_H

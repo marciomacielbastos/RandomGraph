@@ -3,7 +3,7 @@
 #include <distribution.h>
 #include <algorithm>
 
-class Uniform : public Distribution{
+class Uniform : public Distribution {
 public:
     Uniform();
     unsigned long int randint(unsigned long int xmin, unsigned long int max);
