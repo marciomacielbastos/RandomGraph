@@ -19,7 +19,6 @@ public:
     void percolate(Graph &G);
     std::vector<double> get_result();
     std::vector<double> get_other_result();
-    double get_mean_l();
 };
 
 #endif // BETWEENNESS_PERCOLATION_H

@@ -17,6 +17,9 @@ void Statistical_calculus::mean_std_result(unsigned long int i,
         mean_results.push_back({0, 0});
     }
 
+    while (mean_results.size() > observed_values.size()) {
+        observed_values.push_back(0);
+    }
     for (unsigned int j = 0; j < observed_values.size(); ++j) {
         pc_mu = mean_results[j][0];
         //Mean
@@ -148,4 +151,12 @@ std::vector<std::vector<std::vector<double>>> Statistical_calculus::get_results(
 
 std::vector<std::vector<double>> Statistical_calculus::get_other_results() {
     return this->other_results;
+}
+
+std::string Statistical_calculus::get_percolation_name(unsigned int i) {
+    return this->percolations[i]->get_name();
+}
+
+std::string Statistical_calculus::get_percolation_other(unsigned int i) {
+    return this->percolations[i]->get_other();
 }

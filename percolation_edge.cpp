@@ -1,8 +1,6 @@
 #include "percolation_edge.h"
 
-Percolation_edge::Percolation_edge() {
-
-}
+Percolation_edge::Percolation_edge() : Percolation("edge", "critical_point") {}
 
 void Percolation_edge::percolate(Graph &G) {
     bool below_critical = true;

@@ -1,8 +1,6 @@
 #include "percolation_degree.h"
 
-Percolation_degree::Percolation_degree() {
-
-}
+Percolation_degree::Percolation_degree() : Percolation("degree") {}
 
 void Percolation_degree::smart_pop(std::vector<unsigned long> &vect, unsigned long int idx) {
     vect[idx] = vect.back();
@@ -56,9 +54,11 @@ void Percolation_degree::percolate(Graph & G) {
 
         while (!adj_matrix[root].empty()) {
             neighbor = adj_matrix[root].back();
-            heap.update(neighbor);
+            if (!adj_matrix[neighbor].empty()) {
+                heap.update(neighbor);
+            }
             adj_matrix[root].pop_back();
-            remove_node_from_neighborhood(adj_matrix[neighbor], root);
+//            remove_node_from_neighborhood(adj_matrix[neighbor], root);
         }
         if (heap.size() == 1) {
             network_size.push_back(1.0 / static_cast<double>(N));
@@ -69,8 +69,10 @@ void Percolation_degree::percolate(Graph & G) {
         UnionFind uf(N);
         for (unsigned long int i = 0; i < N; i++) {
             for (unsigned long int j = 0; j < adj_matrix[i].size(); j++) {
-                if (i < adj_matrix[i][j]) {
-                    uf.union_(i, adj_matrix[i][j]);
+                if (!adj_matrix[j].empty()) {
+                    if (i < adj_matrix[i][j]) {
+                        uf.union_(i, adj_matrix[i][j]);
+                    }
                 }
             }
         }

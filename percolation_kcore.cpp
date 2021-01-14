@@ -1,8 +1,6 @@
 #include "percolation_kcore.h"
 
-Percolation_kcore::Percolation_kcore() {
-
-}
+Percolation_kcore::Percolation_kcore() : Percolation("kcore") {}
 
 void Percolation_kcore::percolate(Graph & G) {
     unsigned long int size = G.get_n();

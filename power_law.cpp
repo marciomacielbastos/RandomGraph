@@ -15,7 +15,7 @@ double Power_law::pdf(unsigned long int x) {
 
 void Power_law::build_dist() {
     double sum = 0;
-    for (unsigned long int i = 0; i < this->xmax; i++) {
+    for (unsigned long int i = 1; i < this->xmax; i++) {
         double val = pdf(i);
         sum += val;
         this->cdf.push_back(val);

@@ -1,10 +1,10 @@
 #include "percolation_betweenness.h"
 
-Percolation_betweenness::Percolation_betweenness() {
+Percolation_betweenness::Percolation_betweenness() : Percolation("betweeness", "meanl") {
     this->n_threads = 1;
 }
 
-Percolation_betweenness::Percolation_betweenness(int n_threads) {
+Percolation_betweenness::Percolation_betweenness(int n_threads) : Percolation("betweeness", "meanl") {
     this->n_threads = n_threads;
 }
 
