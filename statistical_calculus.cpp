@@ -102,7 +102,7 @@ void Statistical_calculus::calc(double gamma, double lambda, unsigned long int k
     if (this->results.empty()) {
         for (unsigned int i =0; i <= n_threads; i++) {
             std::vector<std::vector<double>> r;
-            std::vector<double> _or;
+            std::vector<std::vector<double>> _or;
             this->results.push_back(r);
             this->other_results.push_back(_or);
         }
@@ -138,7 +138,8 @@ void Statistical_calculus::calc(double gamma, double lambda, unsigned long int k
             observation = (*p)->get_result();
             other_realizations = (*p)->get_other_result();
             mean_std_result(i, this->results[j], observation);
-            mean_std_other_results(i, this->other_results[j], other_realizations);
+            mean_std_result(i, this->other_results[j], other_realizations);
+            (*p)->flush();
             ++p;
         }
     }
@@ -149,7 +150,7 @@ std::vector<std::vector<std::vector<double>>> Statistical_calculus::get_results(
     return this->results;
 }
 
-std::vector<std::vector<double>> Statistical_calculus::get_other_results() {
+std::vector<std::vector<std::vector<double>>> Statistical_calculus::get_other_results() {
     return this->other_results;
 }
 

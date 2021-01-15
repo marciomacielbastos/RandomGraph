@@ -101,6 +101,7 @@ void write_results (std::string folder, std::vector<double> &other_result, doubl
     path = folder + filename.str() + ".txt";
     myfile.open (path);
     for(unsigned long int i = 0;  i < other_result.size(); i++ ){
+//        myfile << other_result[i] << "," << other_result[i][1]<< std::endl;
         if (i == other_result.size() - 1) {
             myfile << other_result[i];
         }
@@ -180,40 +181,39 @@ int main(){
     double gamma_values[5] = {2.5, 3.0, 3.5, 4.0 , 4.5};
     unsigned long int N[10] = {1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144, 524288};
     unsigned long int num_rep[10] = {120, 110, 100, 90, 80, 70, 60, 50, 40, 30};
-    unsigned long int kmin = 2;  
-    double lambda_values[2] = {0.1, 0.01};
+    unsigned long int kmin = 2;
+    double lambda_values[3] = {1, 0.1, 0.01};
     for (int k = 0; k < 2; ++k) {
-        if (k > 0) {
-            std::cout << "lambda: " << lambda_values[k] <<std::endl;
-            for (int i = 5; i < 10; i++) {
-                for (int j = 0; j < 4; j++) {
-                    auto start = std::chrono::high_resolution_clock::now();
-                    std::cout <<"start (f: "<< N[i] <<" | gamma: "<< gamma_values[j] << ")" << std::endl;
-                    simulation(num_rep[i], 5, gamma_values[j], lambda_values[k], kmin, N[i]);
-                    std::cout <<"Simulation done!"<< std::endl;
-                    auto stop = std::chrono::high_resolution_clock::now();
-                    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-                    std::cout << "Done! duration: (" << duration.count() << " milliseconds)"<< std::endl;
-                }
-            }
-        }
+        std::cout << "lambda: " << lambda_values[k] <<std::endl;
+//        for (int i = 0; i < 5; i++) {
+//            for (int j = 0; j < 4; j++) {
+//                auto start = std::chrono::high_resolution_clock::now();
+//                std::cout <<"start (f: "<< N[i] <<" | gamma: "<< gamma_values[j] << ")" << std::endl;
+//                simulation(num_rep[i], 5, gamma_values[j], lambda_values[k], kmin, N[i]);
+//                std::cout <<"Simulation done!"<< std::endl;
+//                auto stop = std::chrono::high_resolution_clock::now();
+//                auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+//                std::cout << "Done! duration: (" << duration.count() << " milliseconds)"<< std::endl;
+//            }
+//        }
+
         std::string folder = "/home/marcio/RandonGraph/Random-graph/output/";
         std::string subfolder_1 = "simulated_graphs/q_exponential/";
         std::string subfolder_2 = "percolation/";
         std::string path;
-        for (int i = 5; i < 10; i++){
+        for (int i = 0; i < 10; i++){
             for (int j = 0; j < 4; j++) {
                 path = folder + subfolder_1;
                 std::cout << gamma_values[j] << " " << N[i] << std::endl;
                 auto start = std::chrono::high_resolution_clock::now();
                 Statistical_calculus sc;
-                Percolation *p = new Percolation_degree;
+                Percolation *p = new Percolation_degree(0.01);
                 sc.add_percolation(p);
     //            p = new Percolation_degree;
     //            sc.add_percolation(p);
                 sc.calc(gamma_values[j], lambda_values[k], kmin, N[i], num_rep[i], path);
                 std::vector<std::vector<std::vector<double>>> results = sc.get_results();
-                std::vector<std::vector<double>> other_results = sc.get_other_results();
+                std::vector<std::vector<std::vector<double>>> other_results = sc.get_other_results();
                 for (unsigned int k=0; k < results.size(); k++) {
                     path = folder + subfolder_2 + sc.get_percolation_name(k) + "/";
                     write_results(path, results[k], gamma_values[j], lambda_values[k], kmin, N[i]);

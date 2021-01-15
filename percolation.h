@@ -30,6 +30,16 @@ public:
    std::string get_other() {
         return this->other;
    }
+   void flush(){
+       unsigned int total = result.size();
+       for (unsigned int var = 0; var < total; ++var) {
+           result.pop_back();
+       }
+       total = other_result.size();
+       for (unsigned int var = 0; var < total; ++var) {
+           other_result.pop_back();
+       }
+   }
 };
 
 #endif // PERCOLATION_H

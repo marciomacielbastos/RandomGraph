@@ -21,6 +21,7 @@ public:
     unsigned long int size();
     T get_root_value();
     bool is_empty();
+    std::vector<T> get_values();
 };
 
 /******************************************************************************/
@@ -105,6 +106,9 @@ template <typename T>
 bool Heap_asc<T>::is_empty(){
     return this->heap.empty();
 }
-
+template <typename T>
+std::vector<T> Heap_asc<T>::get_values() {
+    return this->values;
+}
 
 #endif // HEAP_ASC_H
