@@ -13,6 +13,7 @@ private:
     void update_algolist(std::vector<unsigned long int> &list, unsigned long int v_idx, unsigned long int w_idx);
     bool link(std::vector<unsigned long int> &list, unsigned long v, unsigned long w);
     std::vector<unsigned long int> mount_algorithm_list();
+    void try_hard(std::vector<unsigned long int> &algorithm_list, unsigned long v_idx, int &counter);
 
 public:
     TopologyBuilderConfigurational(std::vector<unsigned long int> dl);

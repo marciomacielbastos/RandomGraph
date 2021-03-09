@@ -35,7 +35,7 @@ void UnionFind::union_(unsigned long int v, unsigned long int w){
     unsigned long int temp;
     unsigned long int vsize, wsize;
     if(vRoot == wRoot) return;
-    else if (this->sizes[vRoot] <= this->sizes[wRoot]) {
+    else if (this->sizes[vRoot] < this->sizes[wRoot]) {
         temp = vRoot;
         vRoot = wRoot;
         wRoot = temp;

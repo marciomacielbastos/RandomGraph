@@ -8,6 +8,7 @@
 
 class qExponential : public Distribution {
 private:
+    double normalization_constant;
     double lambda;
     double q;
     unsigned long int xmin = 0;
@@ -16,11 +17,16 @@ private:
 
 public:
     qExponential();
-    qExponential(double lambda, double q, unsigned long int xmin, unsigned long int xmax);
+    qExponential(double lambda, double q, unsigned long int xmin, unsigned long int N);
+    double coefficient(unsigned long int x);
+    double probability (unsigned long int lower, unsigned long int upper);
+    double norm_const();
     double eq(double x);
     double pdf(unsigned long int x);
+    double pmf(unsigned long int x);
     void build_dist();
     unsigned long int search_inverse_CDF(double p);
+    unsigned long int natural_cutoff(unsigned long int N);
     unsigned long int randint();
 };
 

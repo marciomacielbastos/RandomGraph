@@ -6,6 +6,7 @@
 #include <thread>
 #include <mutex>
 #include <algorithm>
+#include <uniform.h>
 
 
 class Betweenness {
@@ -25,11 +26,10 @@ public:
     Betweenness(Graph & G, unsigned long int n_threads);
     Betweenness(std::vector<std::vector<unsigned long int>> &adj_matrix,
                 unsigned long int n_threads);
-
+    unsigned long int smart_pop(std::vector<unsigned long int> &list, unsigned long int idx);
     void betweenness_centrality_of_i(std::vector<std::vector<unsigned long int>> & adj_matrix,
                                      unsigned long int i);
     void betweenness_centrality_of_s(Graph & G, unsigned long int s);
-
     void betweenness_centrality(Graph & G);
     void betweenness_centrality(std::vector<std::vector<unsigned long int>> & adj_matrix);
     std::vector<double> betweenness_centrality();

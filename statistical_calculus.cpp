@@ -66,6 +66,23 @@ void Statistical_calculus::progress_bar(unsigned long int i) {
     }
 }
 
+void Statistical_calculus::progress_bar(unsigned long int i, double increment) {
+    double progress = increment * static_cast<double>(i);
+    unsigned int bar_width = 70;
+    std::cout << "[";
+    unsigned int pos = static_cast<unsigned int>(double(bar_width) * progress);
+    for (unsigned int i = 0; i < bar_width; ++i) {
+        if (i < pos) std::cout << "=";
+        else if (i == pos) std::cout << ">";
+        else std::cout << " ";
+    }
+    std::cout << "] " << static_cast<unsigned int>(progress * 100.0) << " %  \r";
+    std::cout.flush();
+    if(progress >= 1){
+        std::cout << "\n";
+    }
+}
+
 void Statistical_calculus::add_percolation(Percolation *p) {
     this->percolations.push_back(p);
 }
@@ -88,7 +105,7 @@ void Statistical_calculus::percolate(Percolation *p, Graph &G) {
     p->percolate(G);
 }
 
-void Statistical_calculus::calc(double gamma, double lambda, unsigned long int kmin, unsigned long int N, unsigned long int number_of_samples, std::string folder) {
+void Statistical_calculus::calc_statistics(double gamma, double lambda, unsigned long int kmin, unsigned long int N, unsigned long int number_of_samples, std::string folder) {
     if (this->percolations.size() < 1) {
         std::cout<< "No percolation added" << std::endl;
         return;
@@ -146,12 +163,69 @@ void Statistical_calculus::calc(double gamma, double lambda, unsigned long int k
     progress_bar(number_of_samples);
 }
 
+void Statistical_calculus::calc(std::string filepath, unsigned long int N) {
+    std::vector<std::vector<double>> realization;
+    std::vector<std::vector<double>> other_realization;
+    if (this->percolations.size() < 1) {
+        std::cout<< "No percolation added" << std::endl;
+        return;
+    }
+    unsigned int n_threads = this->percolations.size() - 1;
+    if (this->results.empty()) {
+        for (unsigned int i =0; i <= n_threads; i++) {
+            std::vector<std::vector<double>> r;
+            std::vector<std::vector<double>> _or;
+            this->results.push_back(r);
+            this->other_results.push_back(_or);
+        }
+    }
+    // Setting up
+    Graph G (N);
+    G.read_file(filepath, ',');
+
+    // Threading
+    std::vector<std::thread> threads;
+    Percolation **p = this->percolations.data();
+    for (unsigned int j=0; j < n_threads; j++) {
+        std::thread t (&Statistical_calculus::percolate, this,*p, std::ref(G));
+        threads.push_back(std::move(t));
+        ++p;
+    }
+    (*p)->percolate(G);
+
+    for (unsigned int j=0; j < n_threads; j++) {
+        threads[j].join();
+    }
+
+    while (!threads.empty()) {
+        threads.pop_back();
+    }
+    // Results
+    p = this->percolations.data();
+    for (unsigned int j=0; j <= n_threads; j++) {
+       realization.push_back((*p)->get_result());
+       other_realization.push_back((*p)->get_other_result());
+        (*p)->flush();
+        ++p;
+    }
+    this->realization = realization;
+    this->other_realization = other_realization;
+}
+
 std::vector<std::vector<std::vector<double>>> Statistical_calculus::get_results() {
     return this->results;
 }
 
 std::vector<std::vector<std::vector<double>>> Statistical_calculus::get_other_results() {
     return this->other_results;
+}
+
+std::vector<std::vector<double>> Statistical_calculus::get_realization() {
+    return this->realization;
+}
+
+std::vector<std::vector<double>> Statistical_calculus::get_other_realization() {
+    return this->other_realization;
 }
 
 std::string Statistical_calculus::get_percolation_name(unsigned int i) {

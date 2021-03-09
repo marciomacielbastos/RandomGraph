@@ -29,7 +29,9 @@ SOURCES += main.cpp \
     percolation_edge.cpp \
     percolation_degree.cpp \
     statistical_calculus.cpp \
-    power_law.cpp
+    power_law.cpp \
+    percolation_node.cpp \
+    qexponentialround.cpp
 
 HEADERS += \
     q_exponential.h \
@@ -50,4 +52,6 @@ HEADERS += \
     percolation_edge.h \
     percolation_degree.h \
     statistical_calculus.h \
-    power_law.h
+    power_law.h \
+    percolation_node.h \
+    qexponentialround.h

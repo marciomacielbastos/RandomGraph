@@ -58,6 +58,20 @@ bool TopologyBuilderConfigurational::link(std::vector<unsigned long int> &list, 
     }
 }
 
+void TopologyBuilderConfigurational::try_hard(std::vector<unsigned long int> &algorithm_list, unsigned long v_idx, int &counter) {
+    unsigned long int v = algorithm_list[v_idx];
+    unsigned long int w;
+    unsigned long int size = algorithm_list.size();
+    for (unsigned long int w_idx; w_idx < size; w_idx++) {
+        w = algorithm_list[w_idx];
+        if (!is_connected(v, w)) {
+            link(algorithm_list, v_idx, w_idx);
+            counter = 0;
+        }
+    }
+    smart_pop(algorithm_list, v_idx);
+}
+
 bool TopologyBuilderConfigurational::random_link() {
     std::vector<unsigned long int> algorithm_list = mount_algorithm_list();
     Uniform u;  
@@ -66,13 +80,15 @@ bool TopologyBuilderConfigurational::random_link() {
     while (algorithm_list.size() > 1) {
         v_idx = u.randint(algorithm_list.size());
         w_idx = u.randint(algorithm_list.size());
-
         v = algorithm_list[v_idx];
         w = algorithm_list[w_idx];
         counter = 0;
-        while((v == w) || (is_connected(v, w))){
+        while(is_connected(v, w)){
             if(counter >= 100){
-                return false;
+                try_hard(algorithm_list, v_idx, counter);
+            }
+            if (algorithm_list.size() < 2) {
+                return true;
             }
             v_idx = u.randint(algorithm_list.size());
             w_idx = u.randint(algorithm_list.size());
