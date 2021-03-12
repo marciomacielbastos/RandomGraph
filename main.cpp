@@ -240,18 +240,18 @@ int main(int argc, char** argv){
     /*            Parameters          */
     /**********************************/
     double gamma = 2.5;
-    double lambda = 10;
+    double lambda = 100;
     unsigned long int  kmin = 2;
     unsigned long int  N = 32768 / 8;
-    unsigned long int num_rep = 20;
-    unsigned long int n_threads = 4;
+    unsigned long int num_rep = 14;
+    unsigned long int n_threads = 5;
     std::string folder_degrees = "/home/marcio/RandonGraph/Random-graph/output/degrees/";
     std::string folder_simulated_graphs = "/home/marcio/RandonGraph/Random-graph/output/simulated_graphs/q_exponential/";
     std::string folder_betweeness = "/home/marcio/RandonGraph/Random-graph/output/betweenness/";
     std::string fname;
 
     std::cout <<"Simulating "<< "gamma: "<< gamma << " lambda: " << lambda << " kmin: "<< kmin << " N: " << N << ", " << num_rep << " times, on " << n_threads << " cores" << std::endl;
-    simulation(num_rep, n_threads, gamma, lambda, kmin, N);
+//    simulation(num_rep, n_threads, gamma, lambda, kmin, 100);
     std::cout <<"Simulation done!"<< std::endl;
     std::vector<double> betweenness;
     auto start = std::chrono::high_resolution_clock::now();
@@ -262,9 +262,9 @@ int main(int argc, char** argv){
         sc.progress_bar(i, increment);
         Graph G (N);
         G.read_file(folder_simulated_graphs + fname, ',');
-        Betweenness b(G, n_threads);
+        Betweenness b(G, 3, 300, 50);
         betweenness = b.betweenness_centrality();
-        write_realization(folder_betweeness + fname, betweenness);
+        write_realization(folder_betweeness + "s_" + fname, betweenness);
     }
     sc.progress_bar(num_rep, increment);
     auto stop = std::chrono::high_resolution_clock::now();

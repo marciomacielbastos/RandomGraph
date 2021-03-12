@@ -19,6 +19,7 @@ public:
     double bfs(unsigned long int root, std::vector<std::vector<unsigned long int>> adj_matrix);
     double bfs(std::vector<std::vector<unsigned long int>> &adj_matrix, unsigned long int s);
     double bfs(Graph & g, unsigned long int s);
+    double bfs(Graph & G, unsigned long int s, std::vector<std::vector<unsigned long int>> &p);
     void bfs(Graph & g, unsigned long int s, double & l);
     double avg_geo_dist(unsigned long int number_of_samples, std::vector<std::vector<unsigned long int>> adj_matrix);
     double get_l();

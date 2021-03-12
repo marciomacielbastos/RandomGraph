@@ -114,6 +114,48 @@ double Bfs::bfs(Graph & G, unsigned long int s) {
 }
 
 // modified from Eppstein
+double Bfs::bfs(Graph & G, unsigned long int s, std::vector<std::vector<unsigned long int>> &p) {
+    unsigned long int N = G.get_adj_matrix().size();
+    unsigned long int v;
+    std::vector<unsigned long int> D(N, N+1);
+    std::queue<unsigned long int> q;
+    std::vector<unsigned long int> neighbourhood;
+    double dsum = 0;
+
+    start_vectors(N);
+    this->sigma[s] = 1.0;
+    D[s] = 0;
+    q.push(s);
+
+    while (!q.empty()) {
+        v = q.front();
+        this->S.push_back(v);
+        q.pop();
+        neighbourhood = G.get_adj_matrix()[v];
+        for (auto w : neighbourhood) {
+
+            if (D[w] > N) {
+                D[w] = D[v] + 1;
+                q.push(w);
+
+                dsum += D[w];
+            }
+            // If shortest path through w, count them all...
+            if(D[w] == D[v] + 1) {
+                this->sigma[w] += sigma[v];
+                if (p[w].empty()) p[w].push_back(static_cast<unsigned long int>(this->sigma[w]));
+                else {
+                    p[w].push_back(static_cast<unsigned long int>(this->sigma[w]) + p[w].back());
+                }
+                this->P[w].push_back(v);
+            }
+        }
+    }
+    this->average_path = dsum/static_cast<double>(N - 1);
+    return this->average_path;
+}
+
+// modified from Eppstein
 double Bfs::bfs(std::vector<std::vector<unsigned long int>> &adj_matrix, unsigned long int s) {
     unsigned long int N = adj_matrix.size();
     unsigned long int v;
