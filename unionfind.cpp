@@ -6,7 +6,7 @@ UnionFind::UnionFind(){
 
 UnionFind::UnionFind(unsigned long int N){
     std::pair<unsigned long int, unsigned long int> bigger (0, 1);
-    this->bigger =  bigger;
+    this->maximal_component_root_size_pair =  bigger;
     this->count = N;
     for(unsigned long int i=0; i < N; i++){
         this->root.push_back(i);
@@ -48,9 +48,9 @@ void UnionFind::union_(unsigned long int v, unsigned long int w){
     this->sizes[vRoot] += this->sizes[wRoot];
     vsize = this->sizes[vRoot];
     this->number_of_clusters_per_size[vsize-1]++;
-    if(vsize > this->bigger.second){
-        this->bigger.first = vRoot;
-        this->bigger.second = vsize;
+    if(vsize > this->maximal_component_root_size_pair.second){
+        this->maximal_component_root_size_pair.first = vRoot;
+        this->maximal_component_root_size_pair.second = vsize;
     }
     this->count--;
 }
@@ -63,8 +63,8 @@ std::vector<unsigned long int> UnionFind::get_size_of_components(){
     return this->number_of_clusters_per_size;
 }
 
-unsigned long int UnionFind::get_size_of_max_comp(){
-    return this->bigger.second;
+unsigned long int UnionFind::get_maximal_component_size(){
+    return this->maximal_component_root_size_pair.second;
 }
 
 /**
@@ -73,6 +73,6 @@ unsigned long int UnionFind::get_size_of_max_comp(){
  * @param Null.
  * @return a pair(id, size).
  */
-std::pair<unsigned long int, unsigned long int> UnionFind::get_biggest_comp_id_size(){
-    return this->bigger;
+std::pair<unsigned long int, unsigned long int> UnionFind::get_maximal_component_root_size_pair(){
+    return this->maximal_component_root_size_pair;
 }

@@ -10,7 +10,6 @@ public:
     Percolation_kcore();
     void percolate(Graph & G);
     std::vector<double> get_result();
-    std::vector<double> get_other_result();
 };
 
 #endif // KCORE_DECOMPOSITION_H

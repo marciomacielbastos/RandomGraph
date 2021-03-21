@@ -11,7 +11,6 @@ public:
     Percolation_edge(unsigned long int number_of_checkpoints);
     void percolate(Graph &G);
     std::vector<double> get_result();
-    std::vector<double> get_other_result();
 };
 
 #endif // PERCOLATION_EDGE_ADD_H

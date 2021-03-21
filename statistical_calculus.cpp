@@ -153,9 +153,7 @@ void Statistical_calculus::calc_statistics(double gamma, double lambda, unsigned
         p = this->percolations.data();
         for (unsigned int j=0; j <= n_threads; j++) {
             observation = (*p)->get_result();
-            other_realizations = (*p)->get_other_result();
             mean_std_result(i, this->results[j], observation);
-            mean_std_result(i, this->other_results[j], other_realizations);
             (*p)->flush();
             ++p;
         }
@@ -204,7 +202,6 @@ void Statistical_calculus::calc(std::string filepath, unsigned long int N) {
     p = this->percolations.data();
     for (unsigned int j=0; j <= n_threads; j++) {
        realization.push_back((*p)->get_result());
-       other_realization.push_back((*p)->get_other_result());
         (*p)->flush();
         ++p;
     }
@@ -224,14 +221,3 @@ std::vector<std::vector<double>> Statistical_calculus::get_realization() {
     return this->realization;
 }
 
-std::vector<std::vector<double>> Statistical_calculus::get_other_realization() {
-    return this->other_realization;
-}
-
-std::string Statistical_calculus::get_percolation_name(unsigned int i) {
-    return this->percolations[i]->get_name();
-}
-
-std::string Statistical_calculus::get_percolation_other(unsigned int i) {
-    return this->percolations[i]->get_other();
-}

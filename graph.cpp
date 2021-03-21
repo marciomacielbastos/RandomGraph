@@ -12,7 +12,7 @@ Graph::Graph(unsigned long int N){
     this->N = N;
 }
 
-void Graph::read_file(std::string filename, char delim) {
+void Graph::read_file(std::string filename, char delimiter) {
     std::string line;
     std::ifstream myfile (filename);
     std::string item;
@@ -21,7 +21,7 @@ void Graph::read_file(std::string filename, char delim) {
       while ( std::getline (myfile,line) ) {
         std::istringstream iss(line);
         int i = 0;
-        while (std::getline(iss, item, delim)) {
+        while (std::getline(iss, item, delimiter)) {
               edge[i] = std::stoul(item);
               i++;
         }
@@ -61,7 +61,7 @@ bool Graph::link(unsigned long v, unsigned long w) {
     }
     if(!is_connected(v, w)){
         std::pair<unsigned long int, unsigned long int> edge(v, w);
-        this->link_list.push_back(edge);
+        this->links_vector.push_back(edge);
         this->adj_matrix[v].push_back(w);
         this->adj_matrix[w].push_back(v);
         return true;
@@ -71,8 +71,8 @@ bool Graph::link(unsigned long v, unsigned long w) {
     }
 }
 
-std::vector<std::pair<unsigned long int, unsigned long int>> Graph::get_link_list() {
-    return this->link_list;
+std::vector<std::pair<unsigned long int, unsigned long int>> Graph::get_links_vector() {
+    return this->links_vector;
 }
 
 std::vector<std::vector<unsigned long int>> Graph::get_adj_matrix() {

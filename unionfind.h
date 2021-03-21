@@ -8,7 +8,7 @@ private:
     std::vector<unsigned long int> root;
     std::vector<unsigned long int> sizes;
     std::vector<unsigned long int> number_of_clusters_per_size;
-    std::pair<unsigned long int, unsigned long int> bigger;
+    std::pair<unsigned long int, unsigned long int> maximal_component_root_size_pair;
     unsigned long int count;
 public:
     UnionFind();
@@ -18,8 +18,8 @@ public:
     bool is_connected(unsigned long int v, unsigned long int w);
     std::vector<unsigned long int> get_size_of_components();
     unsigned long int get_number_of_components();
-    unsigned long int get_size_of_max_comp();
-    std::pair<unsigned long int, unsigned long int> get_biggest_comp_id_size();
+    unsigned long int get_maximal_component_size();
+    std::pair<unsigned long int, unsigned long int> get_maximal_component_root_size_pair();
 };
 
 #endif // UNIONFIND_H

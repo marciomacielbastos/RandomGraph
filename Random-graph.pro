@@ -15,13 +15,11 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += main.cpp \
-    q_exponential.cpp \
     uniform.cpp \
     quick_search.cpp \
     graph.cpp \
     topology_builder.cpp \
     unionfind.cpp \
-    bfs.cpp \
     topology_builder_configurational.cpp \
     betweenness.cpp \
     percolation_kcore.cpp \
@@ -29,20 +27,18 @@ SOURCES += main.cpp \
     percolation_edge.cpp \
     percolation_degree.cpp \
     statistical_calculus.cpp \
+    q_exponential.cpp \
     power_law.cpp \
-    percolation_node.cpp \
-    qexponentialround.cpp
+    percolation_vertex.cpp \
+    breadth_first_search.cpp
 
 HEADERS += \
-    q_exponential.h \
     uniform.h \
-    distribution.h \
     quick_search.h \
     graph.h \
     percolation.h \
     topology_builder.h \
     unionfind.h \
-    bfs.h \
     topology_builder_configurational.h \
     betweenness.h \
     percolation_kcore.h \
@@ -52,6 +48,8 @@ HEADERS += \
     percolation_edge.h \
     percolation_degree.h \
     statistical_calculus.h \
+    q_exponential.h \
     power_law.h \
-    percolation_node.h \
-    qexponentialround.h
+    percolation_vertex.h \
+    breadth_first_search.h \
+    probability_distribution.h

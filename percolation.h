@@ -1,43 +1,23 @@
 #ifndef PERCOLATION_H
 #define PERCOLATION_H
-#include <graph.h>
-#include <vector>
 #include <fstream>
+#include <vector>
 #include <sstream>
+
+#include <graph.h>
+#include <unionfind.h>
 
 class Percolation {
 protected:
-    std::string name;
-    std::string other;
     std::vector<double> result;
-    std::vector<double> other_result;
 
 public:
    virtual std::vector<double> get_result() = 0;
-   virtual std::vector<double> get_other_result() = 0;
    virtual void percolate(Graph &G) = 0;
-   Percolation (std::string name) {
-        this->name = name;
-   }
-
-   Percolation (std::string name, std::string other) {
-        this->name = name;
-        this->other = other;
-   }
-   std::string get_name() {
-        return this->name;
-   }
-   std::string get_other() {
-        return this->other;
-   }
    void flush(){
        unsigned int total = result.size();
        for (unsigned int var = 0; var < total; ++var) {
            result.pop_back();
-       }
-       total = other_result.size();
-       for (unsigned int var = 0; var < total; ++var) {
-           other_result.pop_back();
        }
    }
 };

@@ -1,9 +1,9 @@
 #ifndef RANDINT_H
 #define RANDINT_H
-#include <distribution.h>
+#include <probability_distribution.h>
 #include <algorithm>
 
-class Uniform : public Distribution {
+class Uniform : public Probability_distribution {
 public:
     Uniform();
     unsigned long int randint(unsigned long int xmin, unsigned long int max);

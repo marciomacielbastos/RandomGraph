@@ -1,33 +1,27 @@
-#ifndef Q_EXPONENTIAL_H
-#define Q_EXPONENTIAL_H
-#include "distribution.h"
+#ifndef QEXPONENTIALROUND_H
+#define QEXPONENTIALROUND_H
+#include "probability_distribution.h"
 #include "quick_search.h"
 #include "uniform.h"
 #include <vector>
 #include <cmath>
 
-class qExponential : public Distribution {
+class qExponential : public Probability_distribution {
 private:
-    double normalization_constant;
     double lambda;
     double q;
-    unsigned long int xmin = 0;
+    double C;
+    unsigned long int xmin;
     unsigned long int xmax;
-    std::vector<double> cdf;
+    double F_min;
+    double F_max;
+    double F_min_g;
+    double F_max_g;
+    double F(double x);
 
 public:
-    qExponential();
     qExponential(double lambda, double q, unsigned long int xmin, unsigned long int N);
-    double coefficient(unsigned long int x);
-    double probability (unsigned long int lower, unsigned long int upper);
-    double norm_const();
-    double eq(double x);
-    double pdf(unsigned long int x);
-    double pmf(unsigned long int x);
-    void build_dist();
-    unsigned long int search_inverse_CDF(double p);
-    unsigned long int natural_cutoff(unsigned long int N);
+    unsigned long int calc_x (double u);
     unsigned long int randint();
 };
-
-#endif // Q_EXPONENTIAL_H
+#endif // QEXPONENTIALROUND_H
