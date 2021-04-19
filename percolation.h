@@ -14,12 +14,13 @@ protected:
 public:
    virtual std::vector<double> get_result() = 0;
    virtual void percolate(Graph &G) = 0;
+   virtual void save (std::string filepath) = 0;
    void flush(){
        unsigned int total = result.size();
        for (unsigned int var = 0; var < total; ++var) {
            result.pop_back();
        }
-   }
+   }    
 };
 
 #endif // PERCOLATION_H

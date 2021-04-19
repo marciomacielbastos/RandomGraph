@@ -53,8 +53,8 @@ void Breadth_first_search::search(std::vector<std::vector<unsigned long int>> ad
             }
         }
     }
-    average_geodesical_path = distance_sum/static_cast<double>(N - 1);
-    this->average_geodesical_path;
+    average_geodesical_path = distance_sum / static_cast<double>(N - 1);
+    this->average_geodesical_path = average_geodesical_path;
 }
 
 double Breadth_first_search::get_average_geodesical_path() {

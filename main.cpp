@@ -1,35 +1,12 @@
 #include <QCoreApplication>
 #include <iostream>
-#include <cmath>
-#include <uniform.h>
-#include <q_exponential.h>
-#include <power_law.h>
-#include <vector>
-#include <list>
-#include <deque>
-#include <fstream>
-#include <sstream>
 #include <string>
-#include <graph.h>
-#include <heap_asc.h>
-#include <topology_builder.h>
-#include <topology_builder_configurational.h>
-#include <percolation.h>
-//#include <percolation_degree.h>
-#include <percolation_vertex.h>
-#include <percolation_kcore.h>
-#include <percolation_betweenness.h>
-#include <percolation_edge.h>
-#include <bitset>
-#include <stdlib.h>
-#include <thread>
-#include <unistd.h>
-#include <sys/wait.h>
-#include <betweenness.h>
-#include <statistical_calculus.h>
+#include <sstream>
 /* Show duration time of computation */
 #include <chrono>
 #include <time.h>
+
+#include <percolation_vertex.h>
 
 
 void progress_bar(unsigned long int i, double increment) {
@@ -67,167 +44,8 @@ std::string get_filename(double gamma, double lambda, unsigned long int kmin, un
 }
 
 
-void write_degrees (std::vector<unsigned long int> degree_list, std::string path) {
-    std::ofstream myfile;
-    myfile.open (path);
-    for(unsigned long int i = 0;  i < degree_list.size(); i++ ){
-        if(i < degree_list.size() - 1) myfile << degree_list[i] << ",";
-        else {
-            myfile << degree_list[i] << std::endl;
-        }
-    }
-    myfile.close();
-}
-
-void write_degrees (std::vector<unsigned long int> degree_list, double gamma, double lambda, unsigned long int kmin, unsigned long int N, unsigned int i) {
-    std::string folder = "/home/marcio/RandonGraph/Random-graph/output/degrees/outra/";
-    std::string filename = get_filename(gamma, lambda, kmin, N, i);
-    std::ofstream myfile;
-    std::string path = folder + filename + ".txt";
-    myfile.open (path);
-    for(unsigned long int i = 0;  i < degree_list.size(); i++ ){
-        if(i < degree_list.size() - 1) myfile << degree_list[i] << ",";
-        else {
-            myfile << degree_list[i] << std::endl;
-        }
-    }
-    myfile.close();
-}
-
-void write_graph (std::vector<std::pair<long unsigned int, long unsigned int>> link_list, std::string filepath) {
-    std::ofstream myfile;
-    myfile.open (filepath);
-    for(unsigned long int i = 0;  i < link_list.size(); i++ ){
-        myfile << link_list[i].first << " " << link_list[i].second << std::endl;
-    }
-    myfile.close();
-}
-
-void write_graph (std::vector<std::pair<long unsigned int, long unsigned int>> link_list, double gamma, double lambda, int kmin, unsigned long int N, unsigned long int i) {
-    std::string folder ("/home/marcio/RandonGraph/Random-graph/output/simulated_graphs/q_exponential/");
-    std::string filename =  get_filename(gamma, lambda, kmin, N, i);
-    std::ofstream myfile;
-    std::string path = folder + filename;
-    myfile.open (path);
-    for(i = 0;  i < link_list.size(); i++ ){
-        myfile << link_list[i].first << "," << link_list[i].second << std::endl;
-    }
-    myfile.close();
-}
-
-void write_realization (std::string path, std::vector<double> &realization) {
-    std::ofstream myfile;
-    myfile.open (path);
-    for(unsigned long int i = 0;  i < realization.size(); i++ ){
-//        myfile << other_result[i] << "," << other_result[i][1]<< std::endl;
-        if (i == realization.size() - 1) {
-            myfile << realization[i];
-        }
-        else {
-            myfile << realization[i] << ",";
-        }
-    }
-    myfile.close();
-}
-
-std::vector<unsigned long int> dist_calc(Probability_distribution *dist, unsigned long int N) {
-    std::vector<unsigned long int> degree_list;
-    while (N > 0){
-        unsigned long int val = dist->randint();
-        degree_list.push_back(val);
-        N--;
-    }
-    return degree_list;
-}
-
-std::vector<unsigned long int> calc_degree_list(double gamma, double lambda, unsigned long int kmin, unsigned long int N){   
-    std::vector<unsigned long int> degree_list;
-    Probability_distribution *dist;
-    if (lambda > 0) {
-        double q = (gamma + 1) / gamma;
-        dist = new qExponential(lambda, q, kmin, N);
-    }
-    else {
-        dist = new PowerLaw(gamma, kmin, N);
-    }
-
-    degree_list = dist_calc(dist, N);
-    return degree_list;
-}
-
-Graph calc_topology_with_configurational_method(std::vector<unsigned long int> degree_list){
-    TopologyBuilderConfigurational tb = TopologyBuilderConfigurational(degree_list);
-    tb.random_link();
-    Graph G = tb.get_g();
-    return G;
-}
-
-unsigned long int get_max(std::vector<unsigned long int> degs) {
-    unsigned long int size = degs.size();
-    unsigned long int val = 0;
-    for (unsigned long int i=0; i < size; i++) {
-        if (val < degs[i]) {
-            val = degs[i];
-        }
-    }
-    return val;
-}
-
-void thread_topology_conf(double gamma, double lambda, unsigned long int kmin, unsigned long int N, unsigned long int i) {
-    std::string folder_degrees = "/home/marcio/RandonGraph/Random-graph/output/degrees/";
-    std::string fname = get_filename(gamma, lambda, kmin, N, i);
-    std::vector<unsigned long int> degree_list = calc_degree_list(gamma, lambda, kmin, N);
-    Graph G = calc_topology_with_configurational_method(degree_list);
-    std::vector<std::pair<long unsigned int, long unsigned int>> link_list = G.get_links_vector();
-    degree_list = G.get_degree_distribution();
-    write_degrees(degree_list, folder_degrees + fname);
-    write_graph(link_list, gamma, lambda, kmin, N, i);
-}
-
-void topology_conf(double gamma, double lambda, unsigned long int kmin, unsigned long int N, std::string filepath) {
-    std::vector<unsigned long int> degree_list = calc_degree_list(gamma, lambda, kmin, N);
-    Graph G = calc_topology_with_configurational_method(degree_list);
-    std::vector<std::pair<long unsigned int, long unsigned int>> link_list = G.get_links_vector();
-//    degree_list = G.get_degree_distribution();
-//    write_degrees(degree_list, filepath);
-    write_graph(link_list, filepath);
-}
-
-void simulation(unsigned long int repetitions, unsigned long int n_threads, double gamma, double lambda, unsigned long int kmin, unsigned long int N) {
-    std::vector<std::thread> threads;
-
-    for (unsigned long int i = 0; i < repetitions; i++) {
-        if ((i + 1) % n_threads) {
-            std::thread t (&thread_topology_conf, gamma, lambda, kmin, N, i);
-            threads.push_back(std::move(t));
-        }
-        else {
-            thread_topology_conf(gamma, lambda, kmin, N, i);
-            if (threads.size() > 0) {
-                for (unsigned long int j = 0; j < n_threads - 1; j++) {
-                    threads[j].join();
-                }
-            }
-            while (!threads.empty()) {
-                threads.pop_back();
-            }
-        }
-
-     }
-    if (threads.size() > 0) {
-        for (int j = 0; j < threads.size(); j++) {
-            threads[j].join();
-        }
-    }
-    while (!threads.empty()) {
-        threads.pop_back();
-    }
-}
-
-
-
 int main(int argc, char** argv){
-    auto start_ini = std::chrono::high_resolution_clock::now();
+//    auto start_ini = std::chrono::high_resolution_clock::now();
 //    double gamma = std::stod(argv[1]);
 //    double lambda = std::stod(argv[2]);
 //    unsigned long int  kmin = std::stoul(argv[3]);
@@ -238,41 +56,16 @@ int main(int argc, char** argv){
     /**********************************/
     /*            Parameters          */
     /**********************************/
-    double gamma = 2.5;
+    double gamma = 4;
     double lambda = 0.01;
     unsigned long int  kmin = 2;
-    unsigned long int  N = 32768 * 2;
+    unsigned long int  N = 1024 * 64;
     unsigned long int num_rep = 100;
-    unsigned long int n_threads = 3;
-    std::string folder_degrees = "/home/marcio/RandonGraph/Random-graph/output/degrees/";
+    unsigned long int n_threads = 1;
     std::string folder_simulated_graphs = "/home/marcio/RandonGraph/Random-graph/output/simulated_graphs/q_exponential/";
-    std::string folder_betweeness = "/home/marcio/RandonGraph/Random-graph/output/betweenness/";
     std::string folder_random_attack = "/home/marcio/RandonGraph/Random-graph/output/percolation/vertices/";
     std::string folder_mal_attack = "/home/marcio/RandonGraph/Random-graph/output/percolation/degree/";
     std::string fname;
-
-    std::cout <<"Simulating "<< "gamma: "<< gamma << " lambda: " << lambda << " kmin: "<< kmin << " N: " << N << ", " << num_rep << " times, on " << n_threads << " cores" << std::endl;
-    simulation(num_rep, n_threads, gamma, lambda, kmin, N);
-    std::cout <<"Simulation done!"<< std::endl;
-//    std::vector<double> betweenness;
-//    auto start = std::chrono::high_resolution_clock::now();
-//    Statistical_calculus sc;
-//    double increment = 1 / static_cast<double>(num_rep);
-//    for (unsigned long int i = 0; i < num_rep; i++) {
-//        fname = get_filename(gamma, lambda, kmin, N, i);
-//        sc.progress_bar(i, increment);
-//        Graph G (N);
-//        G.read_file(folder_simulated_graphs + fname, ',');
-//        Betweenness b(G, 3, 300, 50);
-//        betweenness = b.betweenness_centrality();
-//        write_realization(folder_betweeness + "s_" + fname, betweenness);
-//    }
-//    sc.progress_bar(num_rep, increment);
-//    auto stop = std::chrono::high_resolution_clock::now();
-//    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-//    std::cout << "Done! duration: (" << duration.count() << " milliseconds)"<< std::endl;
-
-
 
     auto start = std::chrono::high_resolution_clock::now();
     std::cout <<"Percolating "<< "gamma: "<< gamma << " lambda: " << lambda << " kmin: "<< kmin << " N: " << N << ", " << num_rep << " times, on " << n_threads << " cores" << std::endl;
@@ -283,9 +76,8 @@ int main(int argc, char** argv){
         Graph G (N);
         Percolation_vertex p = Percolation_vertex();
         G.read_file(folder_simulated_graphs + fname, ',');
-        p.percolate_on_the_interval(G, 0.99, 1, 100);
-        std::vector<double> result = p.get_result();
-        write_realization(folder_random_attack + "S099_" + fname, result);
+        p.percolate_on_the_interval(G, 0, 1, 100);
+        p.save(folder_mal_attack + fname);
     }
     progress_bar(num_rep, increment);
     auto stop = std::chrono::high_resolution_clock::now();

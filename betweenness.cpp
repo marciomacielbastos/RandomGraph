@@ -65,6 +65,7 @@ void Betweenness::betweenness_centrality(Graph & G) {
         threads.back().join();
         threads.pop_back();
     }
+    rescale(0);
     this->average_path /= N;
 }
 
@@ -89,6 +90,7 @@ void Betweenness::betweenness_centrality(std::vector<std::vector<unsigned long i
         threads.back().join();
         threads.pop_back();
     }
+    rescale(0);
     this->average_path /= N;
 }
 
@@ -100,8 +102,8 @@ void Betweenness::betweenness_centrality_given_graph_and_source(Graph & G, unsig
 
 void Betweenness::betweenness_centrality_given_adj_matrix_and_source(std::vector<std::vector<unsigned long int>> & adj_matrix, unsigned long int source) {
     Breadth_first_search search;
-    search.search(adj_matrix, source);
     std::unique_lock<std::mutex> lock (this->mutex);
+    search.search(adj_matrix, source);   
     lock.unlock();
 //  accumulation
     std::vector<std::vector<unsigned long int>> parents_matrix = search.get_parent_matrix();
@@ -110,7 +112,7 @@ void Betweenness::betweenness_centrality_given_adj_matrix_and_source(std::vector
     accumulation(parents_matrix, spanning_tree, sigma, source);
 
     //  rescaling
-    rescale(0);
+//    rescale(0);
 }
 
 std::vector<double> Betweenness::get_betweenness_centrality_vector() {
@@ -123,8 +125,8 @@ double Betweenness::mean_l() {
 
 
 void Betweenness::rescale(unsigned long int k) {
-    unsigned long int N = this->betweenness.size();
-    double scale = 0.5;
+    double N = static_cast<double>(this->betweenness.size());
+    double scale = 1.0 / ((N - 1) * (N - 2));
     if (k > 0) {
         scale = scale * static_cast<double>(N) / static_cast<double>(k);
     }

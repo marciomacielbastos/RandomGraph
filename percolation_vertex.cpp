@@ -129,3 +129,21 @@ void Percolation_vertex::percolate_on_the_interval(Graph & G, double lower_bound
 std::vector<double> Percolation_vertex::get_result() {
     return this->result;
 }
+
+void Percolation_vertex::save (std::string filepath) {
+    save(filepath, ",");
+}
+
+void Percolation_vertex::save (std::string filepath, std::string separator) {
+    std::ofstream myfile;
+    myfile.open (filepath);
+    for(unsigned long int i = 0;  i < this->result.size(); i++ ){
+        if (i == this->result.size() - 1) {
+            myfile << this->result[i];
+        }
+        else {
+            myfile << this->result[i] << separator;
+        }
+    }
+    myfile.close();
+}

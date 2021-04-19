@@ -29,7 +29,7 @@ public:
     std::vector<std::pair<unsigned long int, unsigned long int>> get_links_vector();
     std::vector<std::vector<unsigned long int>> get_adj_matrix();
     std::vector<unsigned long int> get_degree_distribution();
-
+    void save_graph(std::string filepath);
 };
 
 #endif // MOUNT_NETWORK_H

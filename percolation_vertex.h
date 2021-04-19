@@ -19,6 +19,8 @@ public:
     void percolate(Graph & G);
     void percolate_on_the_interval(Graph & G, double lower, double upper, unsigned long int number_of_ticks);
     std::vector<double> get_result();
+    void save (std::string filepath);
+    void save (std::string filepath, std::string separator);
 
 };
 

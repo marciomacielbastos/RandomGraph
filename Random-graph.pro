@@ -20,7 +20,6 @@ SOURCES += main.cpp \
     graph.cpp \
     topology_builder.cpp \
     unionfind.cpp \
-    topology_builder_configurational.cpp \
     betweenness.cpp \
     percolation_kcore.cpp \
     percolation_betweenness.cpp \
@@ -30,7 +29,10 @@ SOURCES += main.cpp \
     q_exponential.cpp \
     power_law.cpp \
     percolation_vertex.cpp \
-    breadth_first_search.cpp
+    breadth_first_search.cpp \
+    q_exp_graph_generator.cpp \
+    configurational_model.cpp \
+    clustering_coefficient.cpp
 
 HEADERS += \
     uniform.h \
@@ -39,7 +41,6 @@ HEADERS += \
     percolation.h \
     topology_builder.h \
     unionfind.h \
-    topology_builder_configurational.h \
     betweenness.h \
     percolation_kcore.h \
     percolation_betweenness.h \
@@ -52,4 +53,7 @@ HEADERS += \
     power_law.h \
     percolation_vertex.h \
     breadth_first_search.h \
-    probability_distribution.h
+    probability_distribution.h \
+    q_exp_graph_generator.h \
+    configurational_model.h \
+    clustering_coefficient.h
