@@ -8,7 +8,7 @@ Percolation_kcore::Percolation_kcore(Graph G) {
 }
 
 std::vector<unsigned long int> Percolation_kcore::get_degrees() {
-    unsigned long int size = this->G.get_n();
+    unsigned long int size = this->G.get_N();
     std::vector<unsigned long int> degrees;
     for (unsigned long int i = 0; i < size; ++i) {
         degrees.push_back(this->G.get_adj_matrix()[i].size());

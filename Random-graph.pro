@@ -32,7 +32,8 @@ SOURCES += main.cpp \
     breadth_first_search.cpp \
     q_exp_graph_generator.cpp \
     configurational_model.cpp \
-    clustering_coefficient.cpp
+    clustering_coefficient.cpp \
+    mean_geodesical_distance.cpp
 
 HEADERS += \
     uniform.h \
@@ -56,4 +57,5 @@ HEADERS += \
     probability_distribution.h \
     q_exp_graph_generator.h \
     configurational_model.h \
-    clustering_coefficient.h
+    clustering_coefficient.h \
+    mean_geodesical_distance.h

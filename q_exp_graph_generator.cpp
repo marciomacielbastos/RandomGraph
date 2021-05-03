@@ -93,12 +93,12 @@ void q_Exp_graph_generator::write_degrees(Graph G, std::string filepath) {
 
 std::string q_Exp_graph_generator::make_degree_filepath(unsigned int id) {
     std::string fname = this->filename_prefix + make_filename_suffix(id);
-    return this->degrees_folder + fname;
+    return this->degrees_folder + fname + ".txt";
 }
 
 std::string q_Exp_graph_generator::make_graph_filepath(unsigned int id) {
     std::string fname = this->filename_prefix + make_filename_suffix(id);
-    return this->degrees_folder + fname;
+    return this->graph_folder + fname + ".txt";
 }
 
 Graph q_Exp_graph_generator::calc_topology_with_configurational_method(std::vector<unsigned long int> degree_list) {

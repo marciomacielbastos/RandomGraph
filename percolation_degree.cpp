@@ -13,7 +13,7 @@ std::vector<unsigned long int> Percolation_degree::build_degree_vector(std::vect
 
 void Percolation_degree::percolate(Graph & G) {
     double density_of_biggest_component;
-    unsigned long int N = G.get_n();
+    unsigned long int N = G.get_N();
     unsigned long int neighbor;
     unsigned long int root;
     unsigned long int size_of_biggest_component;
@@ -44,7 +44,7 @@ void Percolation_degree::percolate(Graph & G) {
 void Percolation_degree::percolate_on_the_interval(Graph & G, double lower_bound, double upper_bound, unsigned long int number_of_ticks) {
     double density_of_biggest_component;
     unsigned long int number_of_removed_vertices = 0;
-    unsigned long int N = G.get_n();
+    unsigned long int N = G.get_N();
     unsigned long int neighbor;
     unsigned long int root;
     unsigned long int size_of_biggest_component;

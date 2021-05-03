@@ -64,7 +64,7 @@ void Percolation_vertex::percolate(Graph & G) {
     Uniform uniform_random_variable;
     unsigned long int vertex_idx;
     unsigned long int vertex;
-    unsigned long int N = G.get_n();
+    unsigned long int N = G.get_N();
     unsigned long int size_of_biggest_component;
     unsigned long int neighbor;
     double density_of_biggest_component;
@@ -93,7 +93,7 @@ void Percolation_vertex::percolate_on_the_interval(Graph & G, double lower_bound
     Uniform uniform_random_variable;
     double density_of_biggest_component;
     unsigned long int number_of_removed_vertices = 0;
-    unsigned long int N = G.get_n();
+    unsigned long int N = G.get_N();
     unsigned long int vertex;
     unsigned long int vertex_idx;
     unsigned long int neighbor;

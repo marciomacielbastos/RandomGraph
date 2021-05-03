@@ -25,7 +25,7 @@ public:
 //    Graph(Graph g);
     bool is_connected(unsigned long v, unsigned long w);
     bool link(unsigned long v, unsigned long w);
-    unsigned long int get_n();
+    unsigned long int get_N();
     std::vector<std::pair<unsigned long int, unsigned long int>> get_links_vector();
     std::vector<std::vector<unsigned long int>> get_adj_matrix();
     std::vector<unsigned long int> get_degree_distribution();

@@ -87,7 +87,7 @@ std::vector<unsigned long int> Graph::get_degree_distribution() {
     return dist;
 }
 
-unsigned long int Graph::get_n() {
+unsigned long int Graph::get_N() {
     return this->N;
 }
 
@@ -95,7 +95,7 @@ void Graph::save_graph(std::string filepath) {
     std::ofstream myfile;
     myfile.open (filepath);
     for(unsigned long int i = 0;  i < this->links_vector.size(); i++ ){
-        myfile << this->links_vector[i].first << " " << this->links_vector[i].second << std::endl;
+        myfile << this->links_vector[i].first << "," << this->links_vector[i].second << std::endl;
     }
     myfile.close();
 }

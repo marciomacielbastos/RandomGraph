@@ -9,9 +9,9 @@ void Percolation_edge::percolate(Graph &G) {
     double number_of_links_total;
     double molloy_reed_coef = 0;
     unsigned long int critical_biggest;
-    UnionFind uf = UnionFind(G.get_n());
+    UnionFind uf = UnionFind(G.get_N());
     std::vector<std::pair<unsigned long int, unsigned long int>> list_of_links = G.get_links_vector();
-    std::vector<unsigned long int> degrees(G.get_n(), 0);
+    std::vector<unsigned long int> degrees(G.get_N(), 0);
     std::vector<double> biggest_component(1, 1);
     number_of_links_total = list_of_links.size();
     while (!list_of_links.empty()) {

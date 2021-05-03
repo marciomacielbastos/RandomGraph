@@ -8,7 +8,7 @@
 #include <cmath>
 
 
-class Percolation_degree : private Percolation_vertex {
+class Percolation_degree : public Percolation_vertex {
 protected:
     std::vector<unsigned long int> build_degree_vector(std::vector<std::vector<unsigned long int>> &adj_matrix);
 
