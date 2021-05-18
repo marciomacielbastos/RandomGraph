@@ -141,15 +141,40 @@ void q_Exp_graph_generator::flush_threads(std::vector<std::thread> &threads) {
 
 void q_Exp_graph_generator::generate_multiple_graphs(unsigned long int repetitions, unsigned long int n_threads, unsigned long int from) {
     std::vector<std::thread> threads;
-    for (unsigned int i = 0; i < repetitions; i++) {
+    double increment = 1 / static_cast<double>(repetitions);
+    unsigned long int num_graphs_built = 0;
+    std::cout <<"Building "<< repetitions << " graphs " <<
+                "(gamma: "<< this->gamma << " lambda: " << this->lambda <<
+                " kmin: "<< this->kmin << " N: " << this->N <<
+                "), on " << n_threads << " threads" << std::endl;
+    for (unsigned long int i = 0; i < repetitions; i++) {
+        progress_bar(num_graphs_built, increment);
         if ((i + 1) % n_threads) {
             graph_build_and_save_on_thread(threads, i + from);
         }
         else {
             graph_build_and_save(i + from);
             flush_threads(threads);
+            num_graphs_built += n_threads;
         }
     }
+    progress_bar(repetitions, increment);
     flush_threads(threads);
 }
 
+void q_Exp_graph_generator::progress_bar(unsigned long int i, double increment) {
+    double progress = increment * static_cast<double>(i);
+    unsigned int bar_width = 70;
+    std::cout << "[";
+    unsigned int pos = static_cast<unsigned int>(double(bar_width) * progress);
+    for (unsigned int i = 0; i < bar_width; ++i) {
+        if (i < pos) std::cout << "=";
+        else if (i == pos) std::cout << ">";
+        else std::cout << " ";
+    }
+    std::cout << "] " << static_cast<unsigned int>(progress * 100.0) << " %  \r";
+    std::cout.flush();
+    if(progress >= 1){
+        std::cout << "\n";
+    }
+}

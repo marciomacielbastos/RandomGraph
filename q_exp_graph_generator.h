@@ -1,6 +1,7 @@
 #ifndef GRAPH_GENERATOR_H
 #define GRAPH_GENERATOR_H
 #include <algorithm>
+#include <iostream>
 #include <string>
 #include <thread>
 
@@ -30,6 +31,7 @@ private:
     std::string make_filename_suffix(unsigned int id);
     std::string make_degree_filepath(unsigned int id);
     std::string make_graph_filepath(unsigned int id);
+    void progress_bar(unsigned long int i, double increment);
 
 public:
     q_Exp_graph_generator(double gamma, double lambda, unsigned long int kmin, unsigned long N);

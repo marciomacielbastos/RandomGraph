@@ -14,6 +14,10 @@ protected:
     void smart_pop(std::vector<unsigned long> &vect, unsigned long int idx);
     void remove_node_from_neighborhood(std::vector<unsigned long> &neighborhood, unsigned long int node);
     unsigned long int calculate_maximal_component_size(unsigned long int N, std::vector<std::vector<unsigned long int>> &adj_matrix);
+    double calculate_mean(std::vector<unsigned long int> & values_vector);
+    double calculate_mean_sqr(std::vector<unsigned long int> & values_vector);
+    double calculate_mr_criterion(std::vector<std::vector<unsigned long int>> &adj_matrix);
+    std::vector<unsigned long int> build_degree_vector(std::vector<std::vector<unsigned long int>> &adj_matrix);
 public:
     Percolation_vertex();
     void percolate(Graph & G);

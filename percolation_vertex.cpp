@@ -41,6 +41,22 @@ void Percolation_vertex::remove_node_from_neighborhood(std::vector<unsigned long
     }
 }
 
+double Percolation_vertex::calculate_mean(std::vector<unsigned long int>& values_vector) {
+    double mean = 0;
+    for (auto value : values_vector) {
+        mean += static_cast<double>(value);
+    }
+    return mean / static_cast<double>(values_vector.size());
+}
+
+double Percolation_vertex::calculate_mean_sqr(std::vector<unsigned long int> & values_vector) {
+    double mean = 0;
+    for (auto value : values_vector) {
+        double double_value = static_cast<double>(value);
+        mean += double_value * double_value;
+    }
+    return mean / static_cast<double>(values_vector.size());
+}
 
 unsigned long int Percolation_vertex::calculate_maximal_component_size(unsigned long int N, std::vector<std::vector<unsigned long int>> &adj_matrix) {
     UnionFind uf(N);
@@ -57,6 +73,20 @@ unsigned long int Percolation_vertex::calculate_maximal_component_size(unsigned 
         }
     }
     return uf.get_maximal_component_size();
+}
+
+std::vector<unsigned long int> Percolation_vertex::build_degree_vector(std::vector<std::vector<unsigned long int>> &adj_matrix) {
+    unsigned long int N = adj_matrix.size();
+    std::vector<unsigned long int> degrees(N, 0);
+    for (unsigned long int i = 0; i < N; ++i) {
+        degrees[i] = adj_matrix[i].size();
+    }
+    return degrees;
+}
+
+double Percolation_vertex::calculate_mr_criterion(std::vector<std::vector<unsigned long int>> &adj_matrix) {
+    std::vector<unsigned long int> degrees_vector = build_degree_vector(adj_matrix);
+    return calculate_mean_sqr(degrees_vector) / calculate_mean(degrees_vector);
 }
 
 
