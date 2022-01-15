@@ -113,6 +113,12 @@ Graph q_Exp_graph_generator::generate_graph(std::vector<unsigned long int> degre
     return G;
 }
 
+Graph q_Exp_graph_generator::generate_graph() {
+    std::vector<unsigned long int> degrees_vector = sample_degrees();
+    Graph G = generate_graph(degrees_vector);
+    return G;
+}
+
 void q_Exp_graph_generator::graph_build_and_save(unsigned int id) {
     std::vector<unsigned long int> degrees_vector = sample_degrees();
     Graph G = generate_graph(degrees_vector);

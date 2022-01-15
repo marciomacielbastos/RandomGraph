@@ -156,6 +156,40 @@ void Percolation_vertex::percolate_on_the_interval(Graph & G, double lower_bound
     }
 }
 
+/*******************************************************************/
+
+void Percolation_vertex::percolate_molloy_reed(Graph & G) {
+    double molloy_reed;
+    double f;
+    unsigned long int number_of_removed_vertices = 0;
+    unsigned long int N = G.get_N();
+    unsigned long int vertex;
+    unsigned long int vertex_idx;
+    unsigned long int neighbor;
+    Uniform uniform_random_variable;
+    //Get the adjacent matrix
+    std::vector<std::vector<unsigned long int>> adj_matrix = G.get_adj_matrix();
+    //Get list of nodes
+    std::vector<unsigned long int> vertices = build_identity_vector(N);
+    molloy_reed = calculate_mr_criterion(adj_matrix);
+    while (molloy_reed > 2) {
+        vertex_idx = uniform_random_variable.randint(vertices.size());
+        vertex = vertices[vertex_idx];
+        smart_pop(vertices,vertex_idx);
+        while (!adj_matrix[vertex].empty()) {
+            neighbor = adj_matrix[vertex].back();
+            adj_matrix[vertex].pop_back();
+            remove_node_from_neighborhood(adj_matrix[neighbor], vertex);
+        }
+        number_of_removed_vertices++;
+        f = static_cast<double>(number_of_removed_vertices) / static_cast<double>(N);
+        molloy_reed = calculate_mr_criterion(adj_matrix);
+    }
+    this->result.push_back(f);
+}
+
+/*******************************************************************/
+
 std::vector<double> Percolation_vertex::get_result() {
     return this->result;
 }
@@ -169,7 +203,7 @@ void Percolation_vertex::save (std::string filepath, std::string separator) {
     myfile.open (filepath);
     for(unsigned long int i = 0;  i < this->result.size(); i++ ){
         if (i == this->result.size() - 1) {
-            myfile << this->result[i];
+            myfile << this->result[i] << std::endl;
         }
         else {
             myfile << this->result[i] << separator;

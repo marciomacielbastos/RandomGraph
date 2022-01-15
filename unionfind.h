@@ -2,6 +2,7 @@
 #define UNIONFIND_H
 #include <map>
 #include <vector>
+#include <stack>
 
 class UnionFind {
 private:
@@ -17,6 +18,7 @@ public:
     unsigned long int find(unsigned long int v);
     bool is_connected(unsigned long int v, unsigned long int w);
     std::vector<unsigned long int> get_size_of_components();
+    unsigned long int get_size_of_component(unsigned long int v);
     unsigned long int get_number_of_components();
     unsigned long int get_maximal_component_size();
     std::pair<unsigned long int, unsigned long int> get_maximal_component_root_size_pair();

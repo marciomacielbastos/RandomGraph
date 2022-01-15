@@ -23,8 +23,17 @@ unsigned long int UnionFind::get_number_of_components(){
 }
 
 unsigned long int UnionFind::find(unsigned long int v){
+    std::stack<unsigned long int> update;
+    unsigned long int w;
+    update.push(v);
     while (v != this->root[v]) {
-       v = this->root[v];
+        v = this->root[v];
+        update.push(v);
+    }
+    while (!update.empty()) {
+        w = update.top();
+        update.pop();
+        this->root[w] = v;
     }
     return v;
 }
@@ -57,6 +66,10 @@ void UnionFind::union_(unsigned long int v, unsigned long int w){
 
 bool UnionFind::is_connected(unsigned long int v, unsigned long int w){
     return (this->find(v) == this->find(w));
+}
+
+unsigned long int UnionFind::get_size_of_component(unsigned long int v){
+    return this->sizes[v];
 }
 
 std::vector<unsigned long int> UnionFind::get_size_of_components(){

@@ -16,7 +16,7 @@ public:
     Percolation_degree();
     void percolate(Graph & G);
     void percolate_on_the_interval(Graph & G, double lower_bound, double upper_bound, unsigned long int number_of_ticks);
-    void percolate_molloy_reed(Graph & G, double lower_bound);
+    void percolate_molloy_reed(Graph & G);
     std::vector<double> get_result();
 };
 

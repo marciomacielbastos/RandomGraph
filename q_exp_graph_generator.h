@@ -38,6 +38,7 @@ public:
     void generate_multiple_graphs(unsigned long int repetitions, unsigned long int n_threads, unsigned long int from);
     void generate_multiple_graphs(unsigned long int repetitions, unsigned long int n_threads);
     Graph generate_graph(std::vector<unsigned long int> degrees_vector);
+    Graph generate_graph();
     void graph_build_and_save(unsigned int id);
     void write_degrees (Graph G, std::string filepath);
     void set_degrees_folder(std::string folder);

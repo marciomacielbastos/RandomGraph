@@ -18,6 +18,19 @@ bool Configurational_model::is_connected(unsigned long v, unsigned long w) {
     }
 }
 
+std::vector<unsigned long int> Configurational_model::shuffle(std::vector<unsigned long int> &algorithmic_vector) {
+    std::vector<unsigned long int> shuffled_vector;
+    Uniform u;
+    unsigned long int idx;
+    while (!algorithmic_vector.empty()) {
+        idx = u.randint(algorithmic_vector.size());
+        shuffled_vector.push_back(algorithmic_vector[idx]);
+        algorithmic_vector[idx] = algorithmic_vector[algorithmic_vector.size() - 1];
+        algorithmic_vector.pop_back();
+    }
+    return shuffled_vector;
+}
+
 
 
 std::vector<unsigned long int> Configurational_model::mount_algorithmic_vector(){
@@ -27,6 +40,7 @@ std::vector<unsigned long int> Configurational_model::mount_algorithmic_vector()
             algorithmic_vector.push_back(i);
         }
     }
+    algorithmic_vector = this->shuffle(algorithmic_vector);
     return algorithmic_vector;
 }
 
@@ -62,14 +76,17 @@ void Configurational_model::try_hard(std::vector<unsigned long int> &algorithmic
     unsigned long int v = algorithmic_vector[v_idx];
     unsigned long int w;
     unsigned long int size = algorithmic_vector.size();
-    for (unsigned long int w_idx; w_idx < size; w_idx++) {
+    for (unsigned long int w_idx=0; w_idx < size; w_idx++) {
         w = algorithmic_vector[w_idx];
         if (!is_connected(v, w)) {
             link(algorithmic_vector, v_idx, w_idx);
             counter = 0;
         }
     }
-    smart_pop(algorithmic_vector, v_idx);
+    if (counter > 0) {
+        smart_pop(algorithmic_vector, v_idx);
+        counter = 0;
+    }
 }
 
 bool Configurational_model::random_link() {
@@ -86,6 +103,7 @@ bool Configurational_model::random_link() {
         while(is_connected(v, w)){
             if(counter >= 100){
                 try_hard(algorithmic_vector, v_idx, counter);
+                break;
             }
             if (algorithmic_vector.size() < 2) {
                 return true;
@@ -97,7 +115,7 @@ bool Configurational_model::random_link() {
             w = algorithmic_vector[w_idx];
             counter++;
         }
-        link(algorithmic_vector, v_idx, w_idx);
+        if (!is_connected(v, w)) link(algorithmic_vector, v_idx, w_idx);
     }
     this->built = true;
     return true;

@@ -1,22 +1,27 @@
 #include <QCoreApplication>
 #include <iostream>
+#include <fstream>
+#include <math.h>
 #include <string>
 #include <sstream>
+
 /* Show duration time of computation */
 #include <chrono>
 #include <time.h>
 
 #include <betweenness.h>
 #include <clustering_coefficient.h>
+#include <integrity_analyser.h>
 #include <percolation_vertex.h>
 #include <percolation_degree.h>
+#include <poisson.h>
 #include <q_exp_graph_generator.h>
+#include <sis_model.h>
 
-
-void progress_bar(unsigned long int i, double increment) {
+void progress_bar(unsigned long int i, double increment, int count) {
     double progress = increment * static_cast<double>(i);
-    unsigned int bar_width = 70;
-    std::cout << "[";
+    unsigned int bar_width = 60;
+    std::cout << "[" << count << "]"<< "[";
     unsigned int pos = static_cast<unsigned int>(double(bar_width) * progress);
     for (unsigned int i = 0; i < bar_width; ++i) {
         if (i < pos) std::cout << "=";
@@ -48,66 +53,293 @@ std::string get_filename(double gamma, double lambda, unsigned long int kmin, un
 }
 
 
-int main(int argc, char** argv){
-    double lambda = std::stod(argv[1]);
-    unsigned long int N = 1024 * std::stoul(argv[2]);
-    unsigned long int num_rep = std::stoul(argv[3]);
-    unsigned long int from = std::stoul(argv[4]);
-    double begin_interval = std::stod(argv[5]);
-    if (argc == 7) double end_interval = std::stod(argv[6]);
 
-//    double gamma = std::stod(argv[1]);
-//    unsigned long int  kmin = std::stoul(argv[3]);
-//    double  l = std::stoul(argv[3]);
-//    double  u = std::stoul(argv[4]);
-//    std::string  filepath = argv[5];
-//    topology_conf(gamma, lambda, kmin, N, filepath);
+
+int main(int argc, char** argv){
     /**********************************/
     /*            Parameters          */
     /**********************************/
-    double gamma = 2.5;
-    unsigned long int  kmin = 2;
-    unsigned long int n_threads = 5;
-    std::string folder_simulated_graphs = "/home/marcio/RandonGraph/Random-graph/output/simulated_graphs/q_exponential/";
-    std::string folder_simulated_degrees = "/home/marcio/RandonGraph/Random-graph/output/degrees/";
-    std::string folder_random_attack = "/home/marcio/RandonGraph/Random-graph/output/percolation/vertices/";
-    std::string folder_mal_attack = "/home/marcio/RandonGraph/Random-graph/output/percolation/degree/";
-    std::string folder_clustering_coefficient = "/home/marcio/RandonGraph/Random-graph/output/clustering_coefficient/";
-    std::string folder_betweenness = "/home/marcio/RandonGraph/Random-graph/output/betweenness/";
-    std::string fname;
+    double lambda = std::stod(argv[1]);
+    double gamma = std::stod(argv[2]);
+    unsigned long int kmin = std::stoul(argv[3]);
+    unsigned long int N = std::stoul(argv[4]);
+    unsigned long int num_rep = std::stoul(argv[5]);
+    unsigned long int from = std::stoul(argv[6]);
+    std::string subfolder = argv[7];
+/*******************************************************/
+//    unsigned long int n_threads = std::stoul(argv[8]);
+/*******************************************************/
+//    double begin_interval = std::stod(argv[8]);
+//    double end_interval = std::stod(argv[9]);
+/*******************************************************/
+//    double lambda = 100;
+////    double gamma = 4;
+//    unsigned long int  kmin = 1;
+//    unsigned long int N = 100000;
+//    unsigned long int num_rep = 100;
+//    unsigned long int from = 0;
+//    std::string subfolder = "100k";
+////    double begin_interval = 0;
+////    double end_interval = 1;
+//    unsigned long int n_threads = 5;
+    /**********************************/
+    /*            Parameters          */
+    /**********************************/
+
+    std::cout << "lambda: (" << lambda << ")"<< std::endl;
+    std::cout << "gamma: (" << gamma << ")"<< std::endl;
+    std::cout << "kmin: (" << kmin << ")"<< std::endl;
+    std::cout << "N: (" << N << ")"<< std::endl;
+    std::cout << "num_rep: (" << num_rep << ")"<< std::endl;
+    std::cout << "from: (" << from << ")"<< std::endl;
+//    std::cout << "subfolder: (" << subfolder << ")"<< std::endl;
+//    std::cout << "begin_interval: (" << begin_interval << ")"<< std::endl;
+//    std::cout << "end_interval: (" << end_interval << ")"<< std::endl;
+//    std::cout << "n_threads: (" << n_threads << ")"<< std::endl;
+
+    /**********************************/
+    /*             Folders            */
+    /**********************************/
+
+//    std::string folder_simulated_graphs = "/home/marcio/RandonGraph/Random-graph/output/simulated_graphs/q_exponential/" + subfolder + "/";
+//    std::string folder_simulated_degrees = "/home/marcio/RandonGraph/Random-graph/output/degrees/" + subfolder + "/";
+//    std::string folder_random_attack = "/home/marcio/RandonGraph/Random-graph/output/percolation/vertices/" + subfolder + "/";
+//    std::string folder_mal_attack = "/home/marcio/RandonGraph/Random-graph/output/percolation/degree/" + subfolder + "/";
+//    std::string folder_clustering_coefficient = "/home/marcio/RandonGraph/Random-graph/output/clustering_coefficient/";
+//    std::string folder_betweenness = "/home/marcio/RandonGraph/Random-graph/output/betweenness/";
+//    std::string fname;
+
+    /* ------------------------------------------------------------------------------------------------*/
+    /* --------------------------------------[ GRAPH GENERATION ]--------------------------------------*/
+    /* ------------------------------------------------------------------------------------------------*/
 
     auto start = std::chrono::high_resolution_clock::now();
-//    q_Exp_graph_generator q_gen = q_Exp_graph_generator(gamma,lambda,kmin,N);
-//    q_gen.set_graph_folder(folder_simulated_graphs);
-//    q_gen.set_degrees_folder(folder_simulated_degrees);
-//    q_gen.generate_multiple_graphs(num_rep, n_threads, from);
+    q_Exp_graph_generator q_gen = q_Exp_graph_generator(gamma,lambda,kmin,N);
+    q_gen.set_graph_folder(folder_simulated_graphs);
+    q_gen.set_degrees_folder(folder_simulated_degrees);
+    q_gen.generate_multiple_graphs(num_rep, n_threads, from);
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::seconds>(stop - start);
-//    std::cout << "Done! duration: (" << duration.count() << " seconds)"<< std::endl;
+    std::cout << "Done! duration: (" << duration.count() << " seconds)"<< std::endl;
 
+    /* ------------------------------------------------------------------------------------------------*/
+    /* --------------------------------------[ GRAPH GENERATION ]--------------------------------------*/
+    /* ------------------------------------------------------------------------------------------------*/
 
-    start = std::chrono::high_resolution_clock::now();
-    std::cout <<"Malicious Attack "<< "gamma: "<< gamma << " lambda: " << lambda << " kmin: "<< kmin << " N: " << N << ", " << num_rep << " times, on " << n_threads << " cores" << std::endl;
+    /* ------------------------------------------------------------------------------------------------*/
+    /* --------------------------------------[ MALICIOUS ATTACK ]--------------------------------------*/
+    /* ------------------------------------------------------------------------------------------------*/
+    /*
+    auto start = std::chrono::high_resolution_clock::now();
+    std::cout << "Malicious Attack " << std::endl;
     double increment = 1 / static_cast<double>(num_rep);
     for (unsigned long int i = 0; i < num_rep; i++) {
         fname = get_filename(gamma, lambda, kmin, N, i + from);
-        progress_bar(i, increment);
+        progress_bar(i, increment, 1);
         Graph G (N);
         G.read_file(folder_simulated_graphs + fname, ',');
         Percolation_degree p = Percolation_degree();
-//        p.percolate_on_the_interval(G, begin_interval, end_interval, 150);
-        p.percolate_molloy_reed(G, begin_interval);
+        p.percolate_on_the_interval(G, begin_interval, end_interval, 200);
+        p.percolate_molloy_reed(G);
         p.save(folder_mal_attack + fname);
-//        Betweenness BC = Betweenness(G);
-//        BC.set_num_of_threads(n_threads);
-//        BC.betweenness_centrality();
-//        BC.save(folder_betweenness + fname);
-//        Clustering_coefficient C = Clustering_coefficient(G);
-//        C.clustering_multithread(n_threads);
-//        C.save(folder_clustering_coefficient + fname);
     }
-    progress_bar(num_rep, increment);
-    stop = std::chrono::high_resolution_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::seconds>(stop - start);
+    progress_bar(num_rep, increment, 1);
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::seconds>(stop - start);
     std::cout << "Done! duration: (" << duration.count() << " seconds)"<< std::endl;
+    */
+    /* ------------------------------------------------------------------------------------------------*/
+    /* --------------------------------------[ MALICIOUS ATTACK ]--------------------------------------*/
+    /* ------------------------------------------------------------------------------------------------*/
+
+    /* ------------------------------------------------------------------------------------------------*/
+    /* ----------------------------------------[ RANDOM ATTACK ]---------------------------------------*/
+    /* ------------------------------------------------------------------------------------------------*/
+    /*
+    auto start = std::chrono::high_resolution_clock::now();
+    std::cout << "Random Attack " << std::endl;
+    double increment = 1 / static_cast<double>(num_rep);
+    for (unsigned long int i = 0; i < num_rep; i++) {
+        fname = get_filename(gamma, lambda, kmin, N, i + from);
+        progress_bar(i, increment, 1);
+        Graph G (N);
+        G.read_file(folder_simulated_graphs + fname, ',');
+        Percolation_vertex p = Percolation_vertex();
+        p.percolate_on_the_interval(G, begin_interval, end_interval, 200);
+        p.percolate_molloy_reed(G);
+        p.save(folder_random_attack + fname);
+    }
+    progress_bar(num_rep, increment, 1);
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::seconds>(stop - start);
+    std::cout << "Done! duration: (" << duration.count() << " seconds)"<< std::endl;
+    */
+    /* ------------------------------------------------------------------------------------------------*/
+    /* ----------------------------------------[ RANDOM ATTACK ]---------------------------------------*/
+    /* ------------------------------------------------------------------------------------------------*/
+
+    /* ------------------------------------------------------------------------------------------------*/
+    /* -----------------------------------[ BETWEENNESS CENTRALITY ]-----------------------------------*/
+    /* ------------------------------------------------------------------------------------------------*/
+    /*
+    auto start = std::chrono::high_resolution_clock::now();
+    std::cout << "Betweenness Centrality " << std::endl;
+    double increment = 1 / static_cast<double>(num_rep);
+    for (unsigned long int i = 0; i < num_rep; i++) {
+        fname = get_filename(gamma, lambda, kmin, N, i + from);
+        progress_bar(i, increment, 1);
+        Graph G (N);
+        G.read_file(folder_simulated_graphs + fname, ',');
+        Betweenness BC = Betweenness(G);
+        BC.set_num_of_threads(n_threads);
+        BC.betweenness_centrality();
+        BC.save(folder_betweenness + fname);
+    }
+    progress_bar(num_rep, increment, 1);
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::seconds>(stop - start);
+    std::cout << "Done! duration: (" << duration.count() << " seconds)"<< std::endl;
+    */
+    /* ------------------------------------------------------------------------------------------------*/
+    /* -----------------------------------[ BETWEENNESS CENTRALITY ]-----------------------------------*/
+    /* ------------------------------------------------------------------------------------------------*/
+
+    /* ------------------------------------------------------------------------------------------------*/
+    /* -----------------------------------[ CLUSTERING COEFFICIENT ]-----------------------------------*/
+    /* ------------------------------------------------------------------------------------------------*/
+    /*
+    auto start = std::chrono::high_resolution_clock::now();
+    std::cout << "Clustering coefficient " << std::endl;
+    double increment = 1 / static_cast<double>(num_rep);
+    for (unsigned long int i = 0; i < num_rep; i++) {
+        fname = get_filename(gamma, lambda, kmin, N, i + from);
+        progress_bar(i, increment, 1);
+        Graph G (N);
+        G.read_file(folder_simulated_graphs + fname, ',');
+        Clustering_coefficient C = Clustering_coefficient(G);
+        C.clustering_multithread(n_threads);
+        C.save(folder_clustering_coefficient + fname);
+    }
+    progress_bar(num_rep, increment, 1);
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::seconds>(stop - start);
+    std::cout << "Done! duration: (" << duration.count() << " seconds)"<< std::endl;
+    */
+    /* ------------------------------------------------------------------------------------------------*/
+    /* -----------------------------------[ CLUSTERING COEFFICIENT ]-----------------------------------*/
+    /* ------------------------------------------------------------------------------------------------*/
+
+    /* ------------------------------------------------------------------------------------------------*/
+    /* --------------------------------------[ INTEGRITY ANALYSIS ]------------------------------------*/
+    /* ------------------------------------------------------------------------------------------------*/
+    /*
+    double gamma;
+    double xi, Mi, Mi_1, Si = 0;
+    std::ofstream myfile ("integrity.txt");
+    std::cout << "Integrity Analysis " << std::endl;
+    for (int i=0; i < 27; i++) {
+        gamma = 2.5 + (0.25 * static_cast<double>(i));
+        Integrity_analyser ia(N);
+        for (unsigned long int j = 0; j < num_rep; j++) {
+             fname = get_filename(gamma, lambda, kmin, N, j + from);
+             xi = (static_cast<double>(ia.read_file(folder_simulated_graphs + fname, ',')) / static_cast<double>(N)) * 100.0;
+             Mi_1 = Mi;
+             Mi = Mi + (xi - Mi) / (j + 1);
+             Si = Si + (xi - Mi_1) * (xi - Mi);
+             ia.flush();
+        }
+        if (myfile.is_open()) {
+            myfile << gamma <<" "<< Mi << " " << Si / static_cast<double>(num_rep - 1) << std::endl;
+            std::cout << gamma <<" "<< Mi << " " << Si / (static_cast<double>(num_rep - 1) * 10) << std::endl;
+        }
+        else std::cout << "Unable to open file";
+    }
+    myfile.close();
+    */
+    /* ------------------------------------------------------------------------------------------------*/
+    /* --------------------------------------[ INTEGRITY ANALYSIS ]------------------------------------*/
+    /* ------------------------------------------------------------------------------------------------*/
+
+    /* --------------------------------------------------------------------------------------------*/
+    /* --------------------------------------[ SIS ANALYSIS ]--------------------------------------*/
+    /* --------------------------------------------------------------------------------------------*/
+    /*
+    unsigned long int number_of_years = 1;
+    unsigned long int iterations = (365 * number_of_years) + (number_of_years / 4);
+    double increment = 1 / static_cast<double>(iterations);
+    double probability_to_infect;
+    double mean_infectious_interval = 5;
+    int count = 100;
+    Graph g = q_gen.generate_graph();
+    Sis_model sis;
+    sis.set_graph(g);
+    sis.set_mean_infectious_interval(mean_infectious_interval);
+    while (count > 0) {
+        probability_to_infect = 0.125;
+        sis.restart();
+        for (int i = 0; i < 11; i++) {
+            sis.set_probability_to_infect(probability_to_infect);
+            for (unsigned long int j = 0; j < iterations; j++) {
+                progress_bar(j, increment, 100 - count);
+                if (sis.infectious_is_empty()) {
+                    sis.randomly_infect();
+                }
+                sis.record_number_of_infecteds();
+                sis.run_dynamics();
+            }
+            probability_to_infect /= 2;
+        }
+        sis.save("infeccao_N"+std::to_string(N)+"_g2.5_l0.1_descendo_" + std::to_string(100 - count) + ".txt", " ");
+        count--;
+    }
+    count = 100;
+    double PROBABILITY = std::pow(2.0, -12);
+    while (count > 0) {
+        probability_to_infect = PROBABILITY;
+        sis.restart();
+        for (int i = 0; i < 11; i++) {
+            sis.set_probability_to_infect(probability_to_infect);
+            for (unsigned long int j = 0; j < iterations; j++) {
+                progress_bar(j, increment, count);
+                if (sis.infectious_is_empty()) {
+                    sis.randomly_infect();
+                }
+                sis.record_number_of_infecteds();
+                sis.run_dynamics();//    auto start = std::chrono::high_resolution_clock::now();
+    //    std::cout <<"Malicious Attack "<< "gamma: "<< gamma << " lambda: " << lambda << " kmin: "<< kmin << " N: " << N << ", " << num_rep << " times, on " << n_threads << " cores" << std::endl;
+        std::cout << "Malicious Attack " << std::endl;
+        double increment = 1 / static_cast<double>(num_rep);
+        for (unsigned long int i = 0; i < num_rep; i++) {
+            fname = get_filename(gamma, lambda, kmin, N, i + from);
+            progress_bar(i, increment, 1);
+            Graph G (N);
+            G.read_file(folder_simulated_graphs + fname, ',');
+            Percolation_degree p = Percolation_degree();
+            p.percolate_on_the_interval(G, begin_interval, end_interval, 200);
+            p.percolate_molloy_reed(G);
+            p.save(folder_mal_attack + fname);
+    //        Betweenness BC = Betweenness(G);
+    //        BC.set_num_of_threads(n_threads);
+    //        BC.betweenness_centrality();
+    //        BC.save(folder_betweenness + fname);
+    //        Clustering_coefficient C = Clustering_coefficient(G);
+    //        C.clustering_multithread(n_threads);
+    //        C.save(folder_clustering_coefficient + fname);
+        }
+        progress_bar(num_rep, increment, 1);
+        auto stop = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::seconds>(stop - start);
+        std::cout << "Done! duration: (" << duration.count() << " seconds)"<< std::endl;
+            }
+            probability_to_infect *= 2;
+        }
+        sis.save("infeccao_N"+std::to_string(N)+"_g2.5_l0.1_subindo_" + std::to_string(100 - count) + ".txt", " ");
+        count--;
+    }
+    */
+    /* --------------------------------------------------------------------------------------------*/
+    /* --------------------------------------[ SIS ANALYSIS ]--------------------------------------*/
+    /* --------------------------------------------------------------------------------------------*/
+
+
 }

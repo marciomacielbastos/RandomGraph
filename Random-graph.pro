@@ -33,7 +33,10 @@ SOURCES += main.cpp \
     q_exp_graph_generator.cpp \
     configurational_model.cpp \
     clustering_coefficient.cpp \
-    mean_geodesical_distance.cpp
+    mean_geodesical_distance.cpp \
+    sis_model.cpp \
+    poisson.cpp \
+    integrity_analyser.cpp
 
 HEADERS += \
     uniform.h \
@@ -58,4 +61,7 @@ HEADERS += \
     q_exp_graph_generator.h \
     configurational_model.h \
     clustering_coefficient.h \
-    mean_geodesical_distance.h
+    mean_geodesical_distance.h \
+    sis_model.h \
+    poisson.h \
+    integrity_analyser.h

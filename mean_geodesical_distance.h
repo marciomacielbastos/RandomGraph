@@ -2,8 +2,7 @@
 #define MEAN_GEODESICAL_DISTANCE_H
 
 
-class Mean_geodesical_distance
-{
+class Mean_geodesical_distance {
 public:
     Mean_geodesical_distance();
 };
