@@ -27,7 +27,7 @@ public:
     Betweenness (Graph G);
     Betweenness(const Betweenness &b1);
     void set_num_of_threads(unsigned long int n);
-    void betweenness_centrality_given_adj_matrix_and_source(std::vector<std::vector<unsigned long int>> & adj_matrix, unsigned long int source);
+    void betweenness_centrality_given_adj_matrix_and_source(std::vector<Rb_tree> & adj_matrix, unsigned long int source);
     void betweenness_centrality_from_source(unsigned long int source);
     void betweenness_centrality();
     void betweenness_centrality(std::vector<std::vector<unsigned long int>> & adj_matrix);

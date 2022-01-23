@@ -24,7 +24,7 @@ std::vector<unsigned long int> Percolation_vertex::define_ticks(double lower_bou
         double tick = min_number_of_removed_nodes + static_cast<double>(i) * step;
         tick = std::ceil(tick);
         ticks.push_back(static_cast<unsigned long int>(tick));
-    }    
+    }
     return ticks;
 }
 

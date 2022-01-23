@@ -36,7 +36,8 @@ SOURCES += main.cpp \
     mean_geodesical_distance.cpp \
     sis_model.cpp \
     poisson.cpp \
-    integrity_analyser.cpp
+    integrity_analyser.cpp \
+    rb_tree.cpp
 
 HEADERS += \
     uniform.h \
@@ -64,4 +65,5 @@ HEADERS += \
     mean_geodesical_distance.h \
     sis_model.h \
     poisson.h \
-    integrity_analyser.h
+    integrity_analyser.h \
+    rb_tree.h

@@ -6,7 +6,7 @@ q_Exp_graph_generator::q_Exp_graph_generator(double gamma, double lambda, unsign
     this->kmin = kmin;
     this->N = N;
     this->filename_prefix = make_filename_prefix();
-    this->degrees_folder = "./";
+    this->degrees_folder = "";
     this->graph_folder = "./";
 }
 
@@ -78,7 +78,7 @@ std::vector<unsigned long int> q_Exp_graph_generator::sample_degrees(){
 }
 
 void q_Exp_graph_generator::write_degrees(Graph G, std::string filepath) {
-    std::vector<unsigned long int> degrees_vector = G.get_degree_distribution();
+    std::vector<unsigned long int> degrees_vector = G.get_degrees();
     std::ofstream myfile;
     myfile.open (filepath);
     for(unsigned long int i = 0;  i < degrees_vector.size(); i++ ){
@@ -124,8 +124,10 @@ void q_Exp_graph_generator::graph_build_and_save(unsigned int id) {
     Graph G = generate_graph(degrees_vector);
     std::string filepath = make_graph_filepath(id);
     G.save_graph(filepath);
-    filepath = make_degree_filepath(id);
-    write_degrees(G, filepath);
+    if (this->degrees_folder.length() > 0) {
+        filepath = make_degree_filepath(id);
+        write_degrees(G, filepath);
+    }
 }
 
 

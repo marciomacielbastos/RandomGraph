@@ -19,7 +19,7 @@ private:
 
 public:
     Integrity_analyser(unsigned long int N);
-    unsigned long int read_file(std::string filename, char delimiter);
+    void read_graph(std::string filename, char delimiter);
     unsigned long int get_max();
     void flush();
 };

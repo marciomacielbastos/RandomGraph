@@ -32,7 +32,7 @@ void Integrity_analyser::flush() {
     this->uf = uf;
 }
 
-unsigned long int Integrity_analyser::read_file(std::string filename, char delimiter) {
+void Integrity_analyser::read_graph(std::string filename, char delimiter) {
     std::string line;
     std::ifstream myfile (filename);
     std::string item;
@@ -48,12 +48,10 @@ unsigned long int Integrity_analyser::read_file(std::string filename, char delim
         union_(edge[0], edge[1]);
       }
       myfile.close();
-      return uf.get_maximal_component_size();
     }
 
     else {
         std::cout << "Unable to open file: " << filename << std::endl;
-        return 0;
     }
 }
 

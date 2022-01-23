@@ -131,7 +131,6 @@ void Statistical_calculus::calc_statistics(double gamma, double lambda, unsigned
         Graph G (N);
         filename = get_filename(folder, gamma, lambda, kmin, n, i);
         G.read_file(filename, ',');
-
         // Threading
         std::vector<std::thread> threads;
         Percolation **p = this->percolations.data();

@@ -16,7 +16,7 @@ private:
 public:
     Breadth_first_search();
     void search(Graph & G, unsigned long int source);
-    void search(std::vector<std::vector<unsigned long int>> adj_matrix, unsigned long int source);
+    void search(std::vector<Rb_tree> adj_matrix, unsigned long int source);
     double get_average_geodesical_path();
     std::vector<std::vector<unsigned long int>> get_parent_matrix();
     std::vector<unsigned long int> get_spanning_tree();
