@@ -76,6 +76,37 @@ void graph_generation(double lambda,
 /* --------------------------------------[ GRAPH GENERATION ]--------------------------------------*/
 /* ------------------------------------------------------------------------------------------------*/
 
+/* -----------------------------------------------------------------------------------------------*/
+/* --------------------------------------[ DEGREES WRITING ]--------------------------------------*/
+/* -----------------------------------------------------------------------------------------------*/
+void degrees_writing(double lambda,
+                     double gamma,
+                     unsigned long int kmin,
+                     unsigned long int N,
+                     unsigned long int num_rep,
+                     unsigned long int from,
+                     std::string source,
+                     std::string output) {
+    auto start = std::chrono::high_resolution_clock::now();
+    std::cout << "DEGREES WRITING" << std::endl;
+    std::string fname;
+    double increment = 1 / static_cast<double>(num_rep);
+    for (unsigned long int i = 0; i < num_rep; i++) {
+        fname = get_filename(gamma, lambda, kmin, N, i + from);
+        progress_bar(i, increment, 1);
+        Graph G (N);
+        G.read_file(source + fname, ' ');
+        G.save_degrees(output + fname);
+    }
+    progress_bar(num_rep, increment, 1);
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::seconds>(stop - start);
+    std::cout << "Done! duration: (" << duration.count() << " seconds)"<< std::endl;
+}
+/* -----------------------------------------------------------------------------------------------*/
+/* --------------------------------------[ DEGREES WRITING ]--------------------------------------*/
+/* -----------------------------------------------------------------------------------------------*/
+
 /* ------------------------------------------------------------------------------------------------*/
 /* ----------------------------------------[ RANDOM ATTACK ]---------------------------------------*/
 /* ------------------------------------------------------------------------------------------------*/
@@ -89,24 +120,24 @@ void random_attack(double lambda,
                    double end,
                    std::string source,
                    std::string output) {
-//    auto start = std::chrono::high_resolution_clock::now();
-//    std::cout << "Random Attack " << std::endl;
-//    std::string fname;
-//    double increment = 1 / static_cast<double>(num_rep);
-//    for (unsigned long int i = 0; i < num_rep; i++) {
-//        fname = get_filename(gamma, lambda, kmin, N, i + from);
-//        progress_bar(i, increment, 1);
-//        Graph G (N);
-//        G.read_file(source + fname, ',');
-//        Percolation_vertex p = Percolation_vertex();
-//        p.percolate_on_the_interval(G, begin, end, 200);
-//        p.percolate_molloy_reed(G);
-//        p.save(output + fname);
-//    }
-//    progress_bar(num_rep, increment, 1);
-//    auto stop = std::chrono::high_resolution_clock::now();
-//    auto duration = std::chrono::duration_cast<std::chrono::seconds>(stop - start);
-//    std::cout << "Done! duration: (" << duration.count() << " seconds)"<< std::endl;
+    auto start = std::chrono::high_resolution_clock::now();
+    std::cout << "Random Attack " << std::endl;
+    std::string fname;
+    double increment = 1 / static_cast<double>(num_rep);
+    for (unsigned long int i = 0; i < num_rep; i++) {
+        fname = get_filename(gamma, lambda, kmin, N, i + from);
+        progress_bar(i, increment, 1);
+        Graph G (N);
+        G.read_file(source + fname, ' ');
+        Percolation_vertex p = Percolation_vertex();
+        p.percolate_on_the_interval(G, begin, end, 200);
+        p.percolate_molloy_reed(G);
+        p.save(output + fname);
+    }
+    progress_bar(num_rep, increment, 1);
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::seconds>(stop - start);
+    std::cout << "Done! duration: (" << duration.count() << " seconds)"<< std::endl;
 }
 /* ------------------------------------------------------------------------------------------------*/
 /* ----------------------------------------[ RANDOM ATTACK ]---------------------------------------*/
@@ -125,24 +156,24 @@ void malicious_attack(double lambda,
                    double end,
                    std::string source,
                    std::string output) {
-//    auto start = std::chrono::high_resolution_clock::now();
-//    std::cout << "Malicious Attack " << std::endl;
-//    std::string fname;
-//    double increment = 1 / static_cast<double>(num_rep);
-//    for (unsigned long int i = 0; i < num_rep; i++) {
-//        fname = get_filename(gamma, lambda, kmin, N, i + from);
-//        progress_bar(i, increment, 1);
-//        Graph G (N);
-//        G.read_file(source + fname, ',');
-//        Percolation_degree p = Percolation_degree();
-//        p.percolate_on_the_interval(G, begin, end, 200);
-//        p.percolate_molloy_reed(G);
-//        p.save(output + fname);
-//    }
-//    progress_bar(num_rep, increment, 1);
-//    auto stop = std::chrono::high_resolution_clock::now();
-//    auto duration = std::chrono::duration_cast<std::chrono::seconds>(stop - start);
-//    std::cout << "Done! duration: (" << duration.count() << " seconds)"<< std::endl;
+    auto start = std::chrono::high_resolution_clock::now();
+    std::cout << "Malicious Attack " << std::endl;
+    std::string fname;
+    double increment = 1 / static_cast<double>(num_rep);
+    for (unsigned long int i = 0; i < num_rep; i++) {
+        fname = get_filename(gamma, lambda, kmin, N, i + from);
+        progress_bar(i, increment, 1);
+        Graph G (N);
+        G.read_file(source + fname, ' ');
+        Percolation_degree p = Percolation_degree();
+        p.percolate_on_the_interval(G, begin, end, 200);
+        p.percolate_molloy_reed(G);
+        p.save(output + fname);
+    }
+    progress_bar(num_rep, increment, 1);
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::seconds>(stop - start);
+    std::cout << "Done! duration: (" << duration.count() << " seconds)"<< std::endl;
 }
 /* ------------------------------------------------------------------------------------------------*/
 /* --------------------------------------[ MALICIOUS ATTACK ]--------------------------------------*/
@@ -161,20 +192,20 @@ int main(int argc, char** argv){
     unsigned long int from = std::stoul(argv[6]);
     std::string subfolder = argv[7];
 /*******************************************************/
-    unsigned long int n_threads = std::stoul(argv[8]);
+//    unsigned long int n_threads = std::stoul(argv[8]);
 /*******************************************************/
 //    double begin = std::stod(argv[8]);
 //    double end = std::stod(argv[9]);
 /*******************************************************/
-//    double lambda = 0.01;
-//    double gamma = 2.5;
-//    unsigned long int  kmin = 2;
-//    unsigned long int N = 65536 / 2;
+//    double lambda = 100;
+//    double gamma = 2.125;
+//    unsigned long int  kmin = 1;
+//    unsigned long int N = 16384;
 //    unsigned long int num_rep = 1;
 //    unsigned long int from = 0;
-//    std::string subfolder = "32k";
-//    double begin_interval = 0;
-//    double end_interval = 1;
+//    std::string subfolder = "16k";
+//    double begin = 0;
+//    double end = 0.25;
 //    unsigned long int n_threads = 1;
     /**********************************/
     /*            Parameters          */
@@ -189,7 +220,7 @@ int main(int argc, char** argv){
     std::cout << "subfolder: (" << subfolder << ")"<< std::endl;
 //    std::cout << "begin_interval: (" << begin << ")"<< std::endl;
 //    std::cout << "end_interval: (" << end << ")"<< std::endl;
-    std::cout << "n_threads: (" << n_threads << ")"<< std::endl;
+//    std::cout << "n_threads: (" << n_threads << ")"<< std::endl;
 
     /**********************************/
     /*             Folders            */
@@ -202,9 +233,10 @@ int main(int argc, char** argv){
     std::string folder_clustering_coefficient = "/home/marcio/RandonGraph/Random-graph/output/clustering_coefficient/"+ subfolder + "/";
     std::string folder_betweenness = "/home/marcio/RandonGraph/Random-graph/output/betweenness/"+ subfolder + "/";
 
-    graph_generation(lambda, gamma, kmin, N, num_rep, from, n_threads, folder_simulated_graphs);
+//    graph_generation(lambda, gamma, kmin, N, num_rep, from, n_threads, folder_simulated_graphs);
+    degrees_writing(lambda, gamma, kmin, N, num_rep, from, folder_simulated_graphs, folder_simulated_degrees);
 //    random_attack(lambda, gamma, kmin, N, num_rep, from, begin, end, folder_simulated_graphs, folder_random_attack);
-//    malicious_attack(lambda, gamma, kmin, N, num_rep, from, begin, end, folder_simulated_graphs, folder_random_attack);
+//    malicious_attack(lambda, gamma, kmin, N, num_rep, from, begin, end, folder_simulated_graphs, folder_mal_attack);
 
     /* ------------------------------------------------------------------------------------------------*/
     /* -----------------------------------[ BETWEENNESS CENTRALITY ]-----------------------------------*/

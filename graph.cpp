@@ -5,11 +5,8 @@ Graph::Graph(){
 }
 
 Graph::Graph(unsigned long int N){
-    for(unsigned long int i = 0; i < N; i++){
-        Rb_tree v;
-//        std::vector<unsigned long int> v;
-        this->adj_matrix.push_back(v);
-    }
+    std::vector<std::vector<unsigned long int>> adj_matrix(N, std::vector<unsigned long int>({}));
+    this->adj_matrix = adj_matrix;
     this->N = N;
 }
 
@@ -20,14 +17,14 @@ void Graph::read_file(std::string filename, char delimiter) {
     std::string item;
     unsigned long int edge[2];
     if (myfile.is_open()) {
-      while ( std::getline (myfile,line) ) {
-        std::istringstream iss(line);
-        int i = 0;
-        while (std::getline(iss, item, delimiter)) {
-              edge[i] = std::stoul(item);
-              i++;
-        }
-        link(edge[0], edge[1]);
+        while ( std::getline (myfile,line) ) {
+            std::istringstream iss(line);
+            int i = 0;
+            while (std::getline(iss, item, delimiter)) {
+                edge[i] = std::stoul(item);
+                i++;
+            }
+            link(edge[0], edge[1]);
       }
       myfile.close();
     }
@@ -41,26 +38,26 @@ bool Graph::is_connected(unsigned long v, unsigned long w) {
     if(v == w){
         return true;
     }
-    if (this->adj_matrix[v].size() <= this->adj_matrix[w].size()) {
-        return this->adj_matrix[v].is_present(w);
-//        for (auto x : this->adj_matrix[v]) {
-//            if (x == w) {
-//                return true;
-//            }
-//        }
+    if (this->adj_matrix[v].size() > this->adj_matrix[w].size()) {
+        unsigned long int  temp;
+        temp = v;
+        v = w;
+        w = temp;
     }
-    else {
-        return this->adj_matrix[w].is_present(v);
+    for (auto x : this->adj_matrix[v]) {
+        if (x == w) {
+            return true;
+        }
     }
     return false;
 }
 
-bool Graph::link(unsigned long v, unsigned long w) {
+bool Graph::_link(unsigned long v, unsigned long w) {
     if(!is_connected(v, w)){
         std::pair<unsigned long int, unsigned long int> edge(v, w);
         this->links_vector.push_back(edge);
-        this->adj_matrix[v].insert(w);
-        this->adj_matrix[w].insert(v);
+        this->_adj_matrix[v].insert(w);
+        this->_adj_matrix[w].insert(v);
         return true;
     }
     else {
@@ -68,12 +65,12 @@ bool Graph::link(unsigned long v, unsigned long w) {
     }
 }
 
-bool Graph::_link(unsigned long v, unsigned long w) {
+bool Graph::link(unsigned long v, unsigned long w) {
     if(!is_connected(v, w)){
         std::pair<unsigned long int, unsigned long int> edge(v, w);
         this->links_vector.push_back(edge);
-        this->_adj_matrix[v].push_back(w);
-        this->_adj_matrix[w].push_back(v);
+        this->adj_matrix[v].push_back(w);
+        this->adj_matrix[w].push_back(v);
         return true;
     }
     else {
@@ -86,7 +83,7 @@ std::vector<std::pair<unsigned long int, unsigned long int>> Graph::get_links_ve
 }
 
 std::vector<std::vector<unsigned long int>> Graph::get_adj_matrix() {
-    return this->_adj_matrix;
+    return this->adj_matrix;
 }
 
 std::vector<unsigned long int> Graph::get_degrees() {
@@ -110,3 +107,12 @@ void Graph::save_graph(std::string filepath) {
     myfile.close();
 }
 
+void Graph::save_degrees(std::string filepath) {
+    std::ofstream myfile;
+    myfile.open (filepath);
+    std::vector<unsigned long int> degrees = get_degrees();
+    for(unsigned long int i = 0;  i < degrees.size(); i++ ){
+        myfile << degrees[i] << std::endl;
+    }
+    myfile.close();
+}

@@ -33,40 +33,39 @@ std::vector<std::pair<unsigned long int, unsigned long int>> Configurational_mod
 
 
 
-std::vector<std::pair<unsigned long int, unsigned long int>> Configurational_model::mount_algorithmic_vector(){
-    std::vector<std::pair<unsigned long int, unsigned long int>> algorithmic_vector;
-    for(unsigned long int i = 0; i < this->degrees_vector.size(); i++){
-        std::pair<unsigned long int, unsigned long int> p (i, this->degrees_vector[i]);
-        algorithmic_vector.push_back(p);
+std::vector< unsigned long int> Configurational_model::mount_algorithmic_vector(){
+    std::vector<unsigned long int> algorithmic_vector;
+    for(unsigned long int i=0; i < this->degrees_vector.size(); i++){
+        for(unsigned long int j=0; j < this->degrees_vector[i]; j++){
+            algorithmic_vector.push_back(i);
+        }
     }
     return algorithmic_vector;
 }
 
-std::pair<unsigned long int, unsigned long int> Configurational_model::smart_pop(std::vector<std::pair<unsigned long int, unsigned long int>> &list, unsigned long int idx) {
-    std::pair<unsigned long int, unsigned long int> temp = list[idx];
+unsigned long int Configurational_model::smart_pop(std::vector<unsigned long int> &list, unsigned long int idx) {
+    unsigned long int temp = list[idx];
     list[idx] = list.back();
-    list.pop_back();
+    if (!list.empty()) {
+        list.pop_back();
+    }
     return temp;
 }
 
-void Configurational_model::update_algorithmic_vector(std::vector<std::pair<unsigned long int, unsigned long int>> &vector, unsigned long int v_idx, unsigned long int w_idx) {
+void Configurational_model::update_algorithmic_vector(std::vector<unsigned long int> &vector, unsigned long int v_idx, unsigned long int w_idx) {
     if (w_idx < v_idx) {
         unsigned long int temp = w_idx;
         w_idx = v_idx;
         v_idx = temp;
     }
-    vector[w_idx].second--;
-    if (vector[w_idx].second < 1) {
-        smart_pop(vector, w_idx);
-    }
-    vector[v_idx].second--;
-    if (vector[v_idx].second < 1) {
-        smart_pop(vector, v_idx);
-    }
+    smart_pop(vector, w_idx);
+    smart_pop(vector, v_idx);
 }
 
-bool Configurational_model::link(std::vector<std::pair<unsigned long int, unsigned long int>> &list, unsigned long v_idx, unsigned long w_idx) {
-    if (this->g.link(list[v_idx].first, list[w_idx].first)) {
+bool Configurational_model::link(std::vector<unsigned long int> &list, unsigned long v_idx, unsigned long w_idx) {
+    unsigned long int v = list[v_idx];
+    unsigned long int w = list[w_idx];
+    if (this->g.link(v, w)) {
         update_algorithmic_vector(list, v_idx, w_idx);
         return true;
     }
@@ -75,35 +74,42 @@ bool Configurational_model::link(std::vector<std::pair<unsigned long int, unsign
     }
 }
 
-void Configurational_model::try_hard(std::vector<std::pair<unsigned long int, unsigned long int>> &algorithmic_vector, unsigned long v_idx, int &counter) {
-    unsigned long int v = algorithmic_vector[v_idx].first;
+void Configurational_model::try_hard(std::vector<unsigned long int> &algorithmic_vector, unsigned long v_idx, int &counter) {
+    unsigned long int v = algorithmic_vector[v_idx];
     unsigned long int w;
     unsigned long int size = algorithmic_vector.size();
+    std::vector<unsigned long int> popper;
     for (unsigned long int w_idx=0; w_idx < size; w_idx++) {
-        w = algorithmic_vector[w_idx].first;
+        w = algorithmic_vector[w_idx];
         if (!is_connected(v, w)) {
             link(algorithmic_vector, v_idx, w_idx);
             counter = 0;
         }
+        else if (v == algorithmic_vector[w_idx]) {
+            popper.push_back(w_idx);
+        }
     }
-    shuffle((algorithmic_vector));
     if (counter > 0) {
-        smart_pop(algorithmic_vector, v_idx);
+        while (!popper.empty()) {
+            v_idx = popper.back();
+            popper.pop_back();
+            smart_pop(algorithmic_vector, v_idx);
+        }
         counter = 0;
     }
 }
 
 bool Configurational_model::random_link() {
-    std::vector<std::pair<unsigned long int, unsigned long int>> algorithmic_vector = mount_algorithmic_vector();
-    Uniform u;  
+    Uniform u;
+    std::vector<unsigned long int> algorithmic_vector = mount_algorithmic_vector();
     unsigned long int v, w, v_idx, w_idx;
     int counter;
     bool tried_hard = false;
     while (algorithmic_vector.size() > 1) {
         v_idx = u.randint(algorithmic_vector.size());
         w_idx = u.randint(algorithmic_vector.size());
-        v = algorithmic_vector[v_idx].first;
-        w = algorithmic_vector[w_idx].first;
+        v = algorithmic_vector[v_idx];
+        w = algorithmic_vector[w_idx];
         counter = 0;
         while(is_connected(v, w)){
             if(counter >= 100){
@@ -111,19 +117,15 @@ bool Configurational_model::random_link() {
                 tried_hard = true;
                 break;
             }
-            if (algorithmic_vector.size() < 2) {
-                return true;
-            }
             v_idx = u.randint(algorithmic_vector.size());
             w_idx = u.randint(algorithmic_vector.size());
-
-            v = algorithmic_vector[v_idx].first;
-            w = algorithmic_vector[w_idx].first;
+            v = algorithmic_vector[v_idx];
+            w = algorithmic_vector[w_idx];
             counter++;
         }
         if (tried_hard) tried_hard = false;
         else {
-            link(algorithmic_vector, v_idx, w_idx);
+            link(algorithmic_vector,v_idx,w_idx);
         }
     }
     this->built = true;

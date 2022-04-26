@@ -5,6 +5,16 @@ Rb_tree::Rb_tree() {
     this->root = this->NIL;
 }
 
+//Rb_tree::~Rb_tree() {
+//    if (this->tree_size > 0) {
+//        NodePtr head = this->root;
+//        while (this->root->next != nullptr) {
+//            head = this->root->next;
+//            delete head;
+//        }
+//        delete this->NIL;
+//    }
+//}
 
 NodePtr Rb_tree::search_tree(NodePtr node, unsigned long int key) {
     if (node == NIL || key == node->key) {
@@ -132,6 +142,7 @@ bool Rb_tree::insert(unsigned long int key) {
     }
     NodePtr node = new Node;
     node->parent = nullptr;
+    node->next = nullptr;
     node->key = key;
     node->left = NIL;
     node->right = NIL;
@@ -152,11 +163,14 @@ bool Rb_tree::insert(unsigned long int key) {
     node->parent = node_parent;
     if (node_parent == nullptr) {
         this->root = node;
+        this->tail = node;
     } else if (node->key < node_parent->key) {
         node_parent->left = node;
     } else {
         node_parent->right = node;
     }
+    this->tail->next = node;
+    this->tail = node;
     this->tree_size++;
     // if new node is a root node, simply return
     if (node->parent == nullptr){

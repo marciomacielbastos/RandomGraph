@@ -16,8 +16,8 @@
 class Graph {
 private:
     std::vector<std::pair<unsigned long int, unsigned long int>> links_vector;
-    std::vector<std::vector<unsigned long int>> _adj_matrix;
-    std::vector<Rb_tree> adj_matrix;
+    std::vector<std::vector<unsigned long int>> adj_matrix;
+    std::vector<Rb_tree> _adj_matrix;
     unsigned long int N;
 
 public:
@@ -33,6 +33,7 @@ public:
     std::vector<std::vector<unsigned long int>> get_adj_matrix();
     std::vector<unsigned long int> get_degrees();
     void save_graph(std::string filepath);
+    void save_degrees(std::string filepath);
 };
 
 #endif // MOUNT_NETWORK_H
