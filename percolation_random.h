@@ -7,7 +7,7 @@
 #include <percolation.h>
 #include <cmath>
 
-class Percolation_vertex : public Percolation {
+class Percolation_random : public Percolation {
 protected:
     std::vector<unsigned long int> build_identity_vector(unsigned long int N);
     std::vector<unsigned long int> define_ticks(double lower_bound, double upper_bound, unsigned long int number_of_ticks, unsigned long int N);   
@@ -19,7 +19,7 @@ protected:
     double calculate_mr_criterion(std::vector<std::vector<unsigned long int>> &adj_matrix);
     std::vector<unsigned long int> build_degree_vector(std::vector<std::vector<unsigned long int>> &adj_matrix);
 public:
-    Percolation_vertex();
+    Percolation_random();
     void percolate(Graph & G);
     void percolate_on_the_interval(Graph & G, double lower, double upper, unsigned long int number_of_ticks);
     void percolate_molloy_reed(Graph & G);

@@ -1,23 +1,34 @@
 #include "rb_tree.h"
 
 Rb_tree::Rb_tree() {
-    this->tree_size = 0;
+    this->NIL = new Node;
+    this->NIL->parent = nullptr;
+    this->NIL->key = 0;
+    this->NIL->left = nullptr;
+    this->NIL->right = nullptr;
+    this->NIL->color = 0; // New node must be red
     this->root = this->NIL;
+    this->tree_size = 0;
 }
 
-//Rb_tree::~Rb_tree() {
-//    if (this->tree_size > 0) {
-//        NodePtr head = this->root;
-//        while (this->root->next != nullptr) {
-//            head = this->root->next;
-//            delete head;
-//        }
-//        delete this->NIL;
-//    }
-//}
+void Rb_tree::destroy_recursive(NodePtr node)
+{
+    if (node != this->NIL and node)
+    {
+        destroy_recursive(node->left);
+        destroy_recursive(node->right);
+        delete node;
+    }
+}
+
+Rb_tree::~Rb_tree() {
+    destroy_recursive(this->root);
+    delete this->NIL;
+    int i = 0;
+}
 
 NodePtr Rb_tree::search_tree(NodePtr node, unsigned long int key) {
-    if (node == NIL || key == node->key) {
+    if (node == this->NIL || key == node->key) {
         return node;
     }
     else if (key < node->key) {
@@ -45,7 +56,7 @@ bool Rb_tree::is_present(unsigned long key) {
 void Rb_tree::leftRotate(NodePtr x) {
     NodePtr y = x->right;
     x->right = y->left;
-    if (y->left != NIL) {
+    if (y->left != this->NIL) {
         y->left->parent = x;
     }
     y->parent = x->parent;
@@ -64,7 +75,7 @@ void Rb_tree::leftRotate(NodePtr x) {
 void Rb_tree::rightRotate(NodePtr x) {
     NodePtr y = x->left;
     x->left = y->right;
-    if (y->right != NIL) {
+    if (y->right != this->NIL) {
         y->right->parent = x;
     }
     y->parent = x->parent;
@@ -82,7 +93,7 @@ void Rb_tree::rightRotate(NodePtr x) {
 // fix the red-black tree
 void Rb_tree::rebalance_insert(NodePtr node) {
     NodePtr u;
-    while (node->parent->color == 1) {
+    while (node->parent->color) {
         if (node->parent == node->parent->parent->right) {
             u = node->parent->parent->left; // uncle
             if (u->color == 1) {
@@ -136,23 +147,28 @@ void Rb_tree::rebalance_insert(NodePtr node) {
     root->color = 0;
 }
 
-bool Rb_tree::insert(unsigned long int key) {
-    if (search(key) != NIL){
-        return false;
-    }
+NodePtr Rb_tree::build_node(unsigned long key) {
     NodePtr node = new Node;
     node->parent = nullptr;
-    node->next = nullptr;
     node->key = key;
-    node->left = NIL;
-    node->right = NIL;
+    node->left = this->NIL;
+    node->right = this->NIL;
     node->color = 1; // New node must be red
+    return node;
+}
 
+
+bool Rb_tree::insert(unsigned long int key) {
+    if (search(key) != this->NIL){
+        return false;
+    }
+
+    NodePtr node = build_node(key);
     NodePtr node_parent = nullptr;
     NodePtr x = this->root;
-
-    while (x != NIL) {
-        node_parent = x; // Last node before NIL
+    this->tree_size ++;
+    while (x != this->NIL) {
+        node_parent = x; // Last node before this->NIL
         if (node->key < x->key) {
             x = x->left;
         } else {
@@ -160,18 +176,15 @@ bool Rb_tree::insert(unsigned long int key) {
         }
     }
 
-    node->parent = node_parent;
-    if (node_parent == nullptr) {
+    if (node_parent == nullptr) { // Empty Tree
         this->root = node;
-        this->tail = node;
     } else if (node->key < node_parent->key) {
+        node->parent = node_parent;
         node_parent->left = node;
     } else {
+        node->parent = node_parent;
         node_parent->right = node;
     }
-    this->tail->next = node;
-    this->tail = node;
-    this->tree_size++;
     // if new node is a root node, simply return
     if (node->parent == nullptr){
         node->color = 0; //Root must be black
@@ -185,11 +198,12 @@ bool Rb_tree::insert(unsigned long int key) {
         rebalance_insert(node);
         return true;
     }
+
 }
 
 // find the node with the minimum key
 NodePtr Rb_tree::minimum(NodePtr node) {
-    while (node->left != NIL) {
+    while (node->left != this->NIL) {
         node = node->left;
     }
     return node;
@@ -197,7 +211,7 @@ NodePtr Rb_tree::minimum(NodePtr node) {
 
 // find the node with the maximum key
 NodePtr Rb_tree::maximum(NodePtr node) {
-    while (node->right != NIL) {
+    while (node->right != this->NIL) {
         node = node->right;
     }
     return node;
@@ -214,44 +228,46 @@ void Rb_tree::transplant(NodePtr u, NodePtr v){
     v->parent = u->parent;
 }
 
-void Rb_tree::_delete(unsigned long int key) {
+void Rb_tree::delete_node(unsigned long int key) {
            // find the node containing key
-           NodePtr node_key = search(key);
+           NodePtr node = search(key);
            NodePtr x, y;
 
-           if (node_key == NIL) {
+           if (node == this->NIL) {
                return;
            }
 
-           y = node_key; //Copy
+           y = node; //Copy
            bool y_original_color = y->color;
-           if (node_key->left == NIL) {
-               x = node_key->right;
-               transplant(node_key, node_key->right);
-           } else if (node_key->right == NIL) {
-               x = node_key->left;
-               transplant(node_key, node_key->left);
+           if (node->left == this->NIL) {
+               x = node->right;
+               transplant(node, node->right);
+           } else if (node->right == this->NIL) {
+               x = node->left;
+               transplant(node, node->left);
            } else {
-               y = minimum(node_key->right);
+               y = minimum(node->right);
                y_original_color = y->color;
                x = y->right;
-               if (y->parent == node_key) {
+               if (y->parent == node) {
                    x->parent = y;
                } else {
                    transplant(y, y->right);
-                   y->right = node_key->right;
+                   y->right = node->right;
                    y->right->parent = y;
                }
 
-               transplant(node_key, y);
-               y->left = node_key->left;
+               transplant(node, y);
+               y->left = node->left;
                y->left->parent = y;
-               y->color = node_key->color;
+               y->color = node->color;
            }
-           delete node_key;
            if (y_original_color == 0){
                 rebalance_delete(x);
            }
+           // Memory release deleted node
+           delete node;
+           this->tree_size--;
 }
 
 void Rb_tree::rebalance_delete(NodePtr node) {

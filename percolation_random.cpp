@@ -1,8 +1,8 @@
-#include "percolation_vertex.h"
+#include "percolation_random.h"
 
-Percolation_vertex::Percolation_vertex(){}
+Percolation_random::Percolation_random(){}
 
-std::vector<unsigned long int> Percolation_vertex::build_identity_vector(unsigned long int N) {
+std::vector<unsigned long int> Percolation_random::build_identity_vector(unsigned long int N) {
     std::vector<unsigned long int> vertices(N, 0);
     for (unsigned long int i=0; i < N; i++) {
         vertices[i] = i;
@@ -10,7 +10,7 @@ std::vector<unsigned long int> Percolation_vertex::build_identity_vector(unsigne
     return vertices;
 }
 
-std::vector<unsigned long int> Percolation_vertex::define_ticks(double lower_bound, double upper_bound, unsigned long int number_of_ticks, unsigned long int N) {
+std::vector<unsigned long int> Percolation_random::define_ticks(double lower_bound, double upper_bound, unsigned long int number_of_ticks, unsigned long int N) {
     std::vector<unsigned long int> ticks;
     double min_number_of_removed_nodes = lower_bound * static_cast<double>(N);
     double max_number_of_removed_nodes = std::ceil(upper_bound * static_cast<double>(N));
@@ -28,12 +28,12 @@ std::vector<unsigned long int> Percolation_vertex::define_ticks(double lower_bou
     return ticks;
 }
 
-void Percolation_vertex::smart_pop(std::vector<unsigned long> &vect, unsigned long int idx) {
+void Percolation_random::smart_pop(std::vector<unsigned long> &vect, unsigned long int idx) {
     vect[idx] = vect.back();
     vect.pop_back();
 }
 
-void Percolation_vertex::remove_node_from_neighborhood(std::vector<unsigned long> &neighborhood, unsigned long int node) {
+void Percolation_random::remove_node_from_neighborhood(std::vector<unsigned long> &neighborhood, unsigned long int node) {
     for (unsigned long int idx = 0; idx < neighborhood.size(); ++idx) {
         if (neighborhood[idx] == node) {
            smart_pop(neighborhood, idx);
@@ -41,7 +41,7 @@ void Percolation_vertex::remove_node_from_neighborhood(std::vector<unsigned long
     }
 }
 
-double Percolation_vertex::calculate_mean(std::vector<unsigned long int>& values_vector) {
+double Percolation_random::calculate_mean(std::vector<unsigned long int>& values_vector) {
     double mean = 0;
     for (auto value : values_vector) {
         mean += static_cast<double>(value);
@@ -49,7 +49,7 @@ double Percolation_vertex::calculate_mean(std::vector<unsigned long int>& values
     return mean / static_cast<double>(values_vector.size());
 }
 
-double Percolation_vertex::calculate_mean_sqr(std::vector<unsigned long int> & values_vector) {
+double Percolation_random::calculate_mean_sqr(std::vector<unsigned long int> & values_vector) {
     double mean = 0;
     for (auto value : values_vector) {
         double double_value = static_cast<double>(value);
@@ -58,7 +58,7 @@ double Percolation_vertex::calculate_mean_sqr(std::vector<unsigned long int> & v
     return mean / static_cast<double>(values_vector.size());
 }
 
-unsigned long int Percolation_vertex::calculate_maximal_component_size(unsigned long int N, std::vector<std::vector<unsigned long int>> &adj_matrix) {
+unsigned long int Percolation_random::calculate_maximal_component_size(unsigned long int N, std::vector<std::vector<unsigned long int>> &adj_matrix) {
     UnionFind uf(N);
     unsigned long int v, w;
     for (unsigned long int i = 0; i < N; i++) {
@@ -75,7 +75,7 @@ unsigned long int Percolation_vertex::calculate_maximal_component_size(unsigned 
     return uf.get_maximal_component_size();
 }
 
-std::vector<unsigned long int> Percolation_vertex::build_degree_vector(std::vector<std::vector<unsigned long int>> &adj_matrix) {
+std::vector<unsigned long int> Percolation_random::build_degree_vector(std::vector<std::vector<unsigned long int>> &adj_matrix) {
     unsigned long int N = adj_matrix.size();
     std::vector<unsigned long int> degrees(N, 0);
     for (unsigned long int i = 0; i < N; ++i) {
@@ -84,13 +84,13 @@ std::vector<unsigned long int> Percolation_vertex::build_degree_vector(std::vect
     return degrees;
 }
 
-double Percolation_vertex::calculate_mr_criterion(std::vector<std::vector<unsigned long int>> &adj_matrix) {
+double Percolation_random::calculate_mr_criterion(std::vector<std::vector<unsigned long int>> &adj_matrix) {
     std::vector<unsigned long int> degrees_vector = build_degree_vector(adj_matrix);
     return calculate_mean_sqr(degrees_vector) / calculate_mean(degrees_vector);
 }
 
 
-void Percolation_vertex::percolate(Graph & G) {
+void Percolation_random::percolate(Graph & G) {
     Uniform uniform_random_variable;
     unsigned long int vertex_idx;
     unsigned long int vertex;
@@ -119,7 +119,7 @@ void Percolation_vertex::percolate(Graph & G) {
     }
 }
 
-void Percolation_vertex::percolate_on_the_interval(Graph & G, double lower_bound, double upper_bound, unsigned long int number_of_ticks) {
+void Percolation_random::percolate_on_the_interval(Graph & G, double lower_bound, double upper_bound, unsigned long int number_of_ticks) {
     Uniform uniform_random_variable;
     double density_of_biggest_component;
     unsigned long int number_of_removed_vertices = 0;
@@ -158,7 +158,7 @@ void Percolation_vertex::percolate_on_the_interval(Graph & G, double lower_bound
 
 /*******************************************************************/
 
-void Percolation_vertex::percolate_molloy_reed(Graph & G) {
+void Percolation_random::percolate_molloy_reed(Graph & G) {
     double molloy_reed;
     double f;
     unsigned long int number_of_removed_vertices = 0;
@@ -190,15 +190,15 @@ void Percolation_vertex::percolate_molloy_reed(Graph & G) {
 
 /*******************************************************************/
 
-std::vector<double> Percolation_vertex::get_result() {
+std::vector<double> Percolation_random::get_result() {
     return this->result;
 }
 
-void Percolation_vertex::save (std::string filepath) {
+void Percolation_random::save (std::string filepath) {
     save(filepath, ",");
 }
 
-void Percolation_vertex::save (std::string filepath, std::string separator) {
+void Percolation_random::save (std::string filepath, std::string separator) {
     std::ofstream myfile;
     myfile.open (filepath);
     for(unsigned long int i = 0;  i < this->result.size(); i++ ){

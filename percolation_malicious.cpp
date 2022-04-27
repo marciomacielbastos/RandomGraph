@@ -1,8 +1,8 @@
-#include "percolation_degree.h"
+#include "percolation_malicious.h"
 
-Percolation_degree::Percolation_degree() {}
+Percolation_malicious::Percolation_malicious() {}
 
-std::vector<unsigned long int> Percolation_degree::build_degree_vector(std::vector<std::vector<unsigned long int>> &adj_matrix) {
+std::vector<unsigned long int> Percolation_malicious::build_degree_vector(std::vector<std::vector<unsigned long int>> &adj_matrix) {
     unsigned long int N = adj_matrix.size();
     std::vector<unsigned long int> degrees(N, 0);
     for (unsigned long int i = 0; i < N; ++i) {
@@ -11,7 +11,7 @@ std::vector<unsigned long int> Percolation_degree::build_degree_vector(std::vect
     return degrees;
 }
 
-void Percolation_degree::percolate(Graph & G) {
+void Percolation_malicious::percolate(Graph & G) {
     double density_of_biggest_component;
     unsigned long int N = G.get_N();
     unsigned long int neighbor;
@@ -41,7 +41,7 @@ void Percolation_degree::percolate(Graph & G) {
     }
 }
 
-void Percolation_degree::percolate_on_the_interval(Graph & G, double lower_bound, double upper_bound, unsigned long int number_of_ticks) {
+void Percolation_malicious::percolate_on_the_interval(Graph & G, double lower_bound, double upper_bound, unsigned long int number_of_ticks) {
     double density_of_biggest_component;
     unsigned long int number_of_removed_vertices = 0;
     unsigned long int N = G.get_N();
@@ -79,7 +79,7 @@ void Percolation_degree::percolate_on_the_interval(Graph & G, double lower_bound
     }
 }
 
-void Percolation_degree::percolate_molloy_reed(Graph & G) {
+void Percolation_malicious::percolate_molloy_reed(Graph & G) {
     double molloy_reed;
     double f;
     unsigned long int number_of_removed_vertices = 0;
@@ -111,6 +111,6 @@ void Percolation_degree::percolate_molloy_reed(Graph & G) {
 }
 
 
-std::vector<double> Percolation_degree::get_result() {
+std::vector<double> Percolation_malicious::get_result() {
     return this->result;
 }
