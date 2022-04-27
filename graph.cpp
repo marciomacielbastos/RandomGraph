@@ -4,8 +4,13 @@ Graph::Graph(){
 
 }
 
+Graph::~Graph() {
+    this->get_adj_matrix().clear();
+    this->links_vector.clear();
+}
+
 Graph::Graph(unsigned long int N){
-    std::vector<std::vector<unsigned long int>> adj_matrix(N, std::vector<unsigned long int>({}));
+    std::vector<Rb_tree> adj_matrix(N, Rb_tree());
     this->adj_matrix = adj_matrix;
     this->N = N;
 }
@@ -44,33 +49,15 @@ bool Graph::is_connected(unsigned long v, unsigned long w) {
         v = w;
         w = temp;
     }
-    for (auto x : this->adj_matrix[v]) {
-        if (x == w) {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool Graph::_link(unsigned long v, unsigned long w) {
-    if(!is_connected(v, w)){
-        std::pair<unsigned long int, unsigned long int> edge(v, w);
-        this->links_vector.push_back(edge);
-        this->_adj_matrix[v].insert(w);
-        this->_adj_matrix[w].insert(v);
-        return true;
-    }
-    else {
-        return false;
-    }
+    return this->adj_matrix[v].is_present(w);
 }
 
 bool Graph::link(unsigned long v, unsigned long w) {
     if(!is_connected(v, w)){
         std::pair<unsigned long int, unsigned long int> edge(v, w);
         this->links_vector.push_back(edge);
-        this->adj_matrix[v].push_back(w);
-        this->adj_matrix[w].push_back(v);
+        this->adj_matrix[v].insert(w);
+        this->adj_matrix[w].insert(v);
         return true;
     }
     else {
@@ -82,7 +69,7 @@ std::vector<std::pair<unsigned long int, unsigned long int>> Graph::get_links_ve
     return this->links_vector;
 }
 
-std::vector<std::vector<unsigned long int>> Graph::get_adj_matrix() {
+std::vector<Rb_tree> Graph::get_adj_matrix() {
     return this->adj_matrix;
 }
 

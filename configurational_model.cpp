@@ -74,7 +74,7 @@ bool Configurational_model::link(std::vector<unsigned long int> &list, unsigned 
     }
 }
 
-void Configurational_model::try_hard(std::vector<unsigned long int> &algorithmic_vector, unsigned long v_idx, int &counter) {
+void Configurational_model::collect_stubs(std::vector<unsigned long int> &algorithmic_vector, unsigned long v_idx, int &counter) {
     unsigned long int v = algorithmic_vector[v_idx];
     unsigned long int w;
     unsigned long int size = algorithmic_vector.size();
@@ -82,8 +82,9 @@ void Configurational_model::try_hard(std::vector<unsigned long int> &algorithmic
     for (unsigned long int w_idx=0; w_idx < size; w_idx++) {
         w = algorithmic_vector[w_idx];
         if (!is_connected(v, w)) {
-            link(algorithmic_vector, v_idx, w_idx);
+            link(algorithmic_vector, v, w);
             counter = 0;
+            return;
         }
         else if (v == algorithmic_vector[w_idx]) {
             popper.push_back(w_idx);
@@ -95,8 +96,8 @@ void Configurational_model::try_hard(std::vector<unsigned long int> &algorithmic
             popper.pop_back();
             smart_pop(algorithmic_vector, v_idx);
         }
-        counter = 0;
     }
+    return;
 }
 
 bool Configurational_model::random_link() {
@@ -104,7 +105,6 @@ bool Configurational_model::random_link() {
     std::vector<unsigned long int> algorithmic_vector = mount_algorithmic_vector();
     unsigned long int v, w, v_idx, w_idx;
     int counter;
-    bool tried_hard = false;
     while (algorithmic_vector.size() > 1) {
         v_idx = u.randint(algorithmic_vector.size());
         w_idx = u.randint(algorithmic_vector.size());
@@ -112,19 +112,17 @@ bool Configurational_model::random_link() {
         w = algorithmic_vector[w_idx];
         counter = 0;
         while(is_connected(v, w)){
-            if(counter >= 100){
-                try_hard(algorithmic_vector, v_idx, counter);
-                tried_hard = true;
-                break;
+            if (counter >= 100){
+                collect_stubs(algorithmic_vector, v_idx, counter);
             }
+            if (algorithmic_vector.size() <= 1) break;
             v_idx = u.randint(algorithmic_vector.size());
             w_idx = u.randint(algorithmic_vector.size());
             v = algorithmic_vector[v_idx];
             w = algorithmic_vector[w_idx];
             counter++;
         }
-        if (tried_hard) tried_hard = false;
-        else {
+        if (!is_connected(v, w)) {
             link(algorithmic_vector,v_idx,w_idx);
         }
     }

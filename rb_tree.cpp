@@ -13,17 +13,17 @@ Rb_tree::Rb_tree() {
 
 void Rb_tree::destroy_recursive(NodePtr node)
 {
-    if (node != this->NIL and node)
+    if (node != this->NIL)
     {
         destroy_recursive(node->left);
         destroy_recursive(node->right);
-        delete node;
+
     }
 }
 
 Rb_tree::~Rb_tree() {
     destroy_recursive(this->root);
-    delete this->NIL;
+//    delete this->NIL;
     int i = 0;
 }
 

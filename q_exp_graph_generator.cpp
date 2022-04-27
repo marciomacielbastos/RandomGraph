@@ -151,10 +151,10 @@ void q_Exp_graph_generator::generate_multiple_graphs(unsigned long int repetitio
     std::vector<std::thread> threads;
     double increment = 1 / static_cast<double>(repetitions);
     unsigned long int num_graphs_built = 0;
-    std::cout <<"Building "<< repetitions << " graphs " <<
-                "(gamma: "<< this->gamma << " lambda: " << this->lambda <<
-                " kmin: "<< this->kmin << " N: " << this->N <<
-                "), on " << n_threads << " threads" << std::endl;
+//    std::cout <<"Building "<< repetitions << " graphs " <<
+//                "(gamma: "<< this->gamma << " lambda: " << this->lambda <<
+//                " kmin: "<< this->kmin << " N: " << this->N <<
+//                "), on " << n_threads << " threads" << std::endl;
     for (unsigned long int i = 0; i < repetitions; i++) {
         progress_bar(num_graphs_built, increment);
         if ((i + 1) % n_threads) {
