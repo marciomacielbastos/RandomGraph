@@ -11,20 +11,16 @@ Rb_tree::Rb_tree() {
     this->tree_size = 0;
 }
 
-void Rb_tree::destroy_recursive(NodePtr node)
-{
-    if (node != this->NIL)
-    {
-        destroy_recursive(node->left);
-        destroy_recursive(node->right);
-
-    }
+void Rb_tree::destroy_recursive(NodePtr node) {
+    if (node->left != this->NIL) delete node->left;
+    if (node->right != this->NIL) delete node->right;
 }
 
 Rb_tree::~Rb_tree() {
     destroy_recursive(this->root);
-//    delete this->NIL;
-    int i = 0;
+    if (this->tree_size) {
+        this->tree_size = 0;
+    }
 }
 
 NodePtr Rb_tree::search_tree(NodePtr node, unsigned long int key) {
@@ -90,63 +86,6 @@ void Rb_tree::rightRotate(NodePtr x) {
     x->parent = y;
 }
 
-// fix the red-black tree
-void Rb_tree::rebalance_insert(NodePtr node) {
-    NodePtr u;
-    while (node->parent->color) {
-        if (node->parent == node->parent->parent->right) {
-            u = node->parent->parent->left; // uncle
-            if (u->color == 1) {
-                // case 3.1
-                u->color = 0;
-                node->parent->color = 0;
-                node->parent->parent->color = 1;
-                node = node->parent->parent;
-            }
-            else {
-                if (node == node->parent->right) {
-                    // case 3.2.1
-                    node->parent->color = 0;
-                    node->parent->parent->color = 1;
-                    leftRotate(node->parent->parent);
-                }
-                else {
-                    // case 3.2.2
-                    node = node->parent;
-                    rightRotate(node);
-                }
-            }
-        }
-        else {
-            u = node->parent->parent->right; // uncle
-
-            if (u->color == 1) {
-                // mirror case 3.1
-                u->color = 0;
-                node->parent->color = 0;
-                node->parent->parent->color = 1;
-                node = node->parent->parent;
-            }
-            else {
-                if (node == node->parent->left) {
-                    // mirror case 3.2.1
-                    node->parent->color =0;
-                    node->parent->parent->color = 1;
-                    rightRotate(node->parent->parent);
-                }
-                else {
-                    node = node->parent;
-                    leftRotate(node);
-                }
-            }
-        }
-        if (node == root) {
-            break;
-        }
-    }
-    root->color = 0;
-}
-
 NodePtr Rb_tree::build_node(unsigned long key) {
     NodePtr node = new Node;
     node->parent = nullptr;
@@ -157,27 +96,85 @@ NodePtr Rb_tree::build_node(unsigned long key) {
     return node;
 }
 
+// fix the red-black tree
+void Rb_tree::rebalance_insert(NodePtr node) {
+    NodePtr u, p;
+    if (node == this->root) {
+        this->root->color = 0;
+        return;
+    }
+    p = node->parent;
+    if (p->color) {
+        if (node->parent == node->parent->parent->right) {
+            u = node->parent->parent->left; // uncle
+            // u color is Black
+            if (u->color == 0) {
+                if (node == p->left) {
+                    rightRotate(p);
+                    leftRotate(node->parent);
+                    node->color = 0;
+                    node->left->color = 1;
+                } else {
+                    leftRotate(p->parent);
+                    p->color = 0;
+                    p->left->color = 1;
+                }
+            // u color is Red
+            } else {
+                u->color = 0;
+                node->parent->color = 0;
+                node->parent->parent->color = 1;
+                node = node->parent->parent;
+                rebalance_insert(node);
+                return;
+            }
+        } else {
+            u = node->parent->parent->right;
+            if (u->color == 0) {
+                if (node == p->right) {
+                    leftRotate(p);
+                    rightRotate(node->parent);
+                    node->color = 0;
+                    node->right->color = 1;
+                } else {
+                    rightRotate(p->parent);
+                    p->color = 0;
+                    p->right->color = 1;
+                }
+
+            } else {
+                u->color = 0;
+                node->parent->color = 0;
+                node->parent->parent->color = 1;
+                node = node->parent->parent;
+                rebalance_insert(node);
+                return;
+            }
+        }
+    } else {
+        return;
+    }
+}
 
 bool Rb_tree::insert(unsigned long int key) {
-    if (search(key) != this->NIL){
-        return false;
-    }
-
-    NodePtr node = build_node(key);
-    NodePtr node_parent = nullptr;
     NodePtr x = this->root;
-    this->tree_size ++;
+    NodePtr node_parent = nullptr;
     while (x != this->NIL) {
         node_parent = x; // Last node before this->NIL
-        if (node->key < x->key) {
+        if (key < x->key) {
             x = x->left;
-        } else {
+        } else if (key > x->key) {
             x = x->right;
+        } else {
+            return false;
         }
     }
-
+    NodePtr node = build_node(key);
+    this->tree_size++;
     if (node_parent == nullptr) { // Empty Tree
         this->root = node;
+        node->color = 0;
+        return true;
     } else if (node->key < node_parent->key) {
         node->parent = node_parent;
         node_parent->left = node;
@@ -185,16 +182,10 @@ bool Rb_tree::insert(unsigned long int key) {
         node->parent = node_parent;
         node_parent->right = node;
     }
-    // if new node is a root node, simply return
-    if (node->parent == nullptr){
-        node->color = 0; //Root must be black
-        return true;
-    }
     // if the grandparent is null, simply return
-    else if (node->parent->parent == nullptr) {
+    if (node->parent->parent == nullptr) {
         return true;
-    }
-    else {
+    } else {
         rebalance_insert(node);
         return true;
     }
@@ -219,7 +210,7 @@ NodePtr Rb_tree::maximum(NodePtr node) {
 
 void Rb_tree::transplant(NodePtr u, NodePtr v){
     if (u->parent == nullptr) {
-        root = v;
+        this->root = v;
     } else if (u == u->parent->left){
         u->parent->left = v;
     } else {
@@ -228,114 +219,142 @@ void Rb_tree::transplant(NodePtr u, NodePtr v){
     v->parent = u->parent;
 }
 
-void Rb_tree::delete_node(unsigned long int key) {
-           // find the node containing key
-           NodePtr node = search(key);
-           NodePtr x, y;
+NodePtr Rb_tree::replacement(NodePtr node) {
+    if (node->left != this->NIL && node->right != this->NIL) {
+        return minimum(node->right);
+    }
+    if (node->right == this->NIL) {
+        return  node->left;
+    }
+    else {
+        return  node->right;
+    }
+}
 
-           if (node == this->NIL) {
-               return;
-           }
+void Rb_tree::delete_key(unsigned long int key) {
+    NodePtr v = search(key);
+    if (v == this->NIL) {
+        return;
+    }
+    this->tree_size--;
+    delete_node(v);
+}
 
-           y = node; //Copy
-           bool y_original_color = y->color;
-           if (node->left == this->NIL) {
-               x = node->right;
-               transplant(node, node->right);
-           } else if (node->right == this->NIL) {
-               x = node->left;
-               transplant(node, node->left);
-           } else {
-               y = minimum(node->right);
-               y_original_color = y->color;
-               x = y->right;
-               if (y->parent == node) {
-                   x->parent = y;
-               } else {
-                   transplant(y, y->right);
-                   y->right = node->right;
-                   y->right->parent = y;
-               }
+void Rb_tree::delete_node(NodePtr v) {
 
-               transplant(node, y);
-               y->left = node->left;
-               y->left->parent = y;
-               y->color = node->color;
-           }
-           if (y_original_color == 0){
-                rebalance_delete(x);
-           }
-           // Memory release deleted node
-           delete node;
-           this->tree_size--;
+    NodePtr u = replacement(v);
+    NodePtr p = v->parent;
+    // If v is a leaf
+    if (u == this->NIL) {      
+        if (v == this->root) {
+            this->root = this->NIL;
+        } else {
+                //v is red
+                if (v->color == 1) {
+                    if (v == p->left) {
+                        p->left = this->NIL;
+                    } else {
+                        p->right = this->NIL;
+                    }
+                }
+                //v is black
+                else {
+                        rebalance_delete(v); // Double Black on v
+                        p =  v->parent;
+                        if (v == p->left) {
+                            p->left = this->NIL;
+                        } else {
+                            p->right = this->NIL;
+                        }
+                        NodePtr p1 = v->parent;
+                        if (p != p1) {
+                            p = p1;
+                        }
+                }
+        }
+        delete v;        
+        return;       
+    // v is not a leaf
+    } else {
+        v->key = u->key;
+        delete_node(u);
+        return;
+    }
 }
 
 void Rb_tree::rebalance_delete(NodePtr node) {
-    NodePtr s;
-    while (node != root && node->color == 0) {
-        if (node == node->parent->left) {
-            s = node->parent->right;
-            if (s->color == 1) {
-                // case 3.1
-                s->color = 0;
-                node->parent->color = 1;
-                leftRotate(node->parent);
-                s = node->parent->right;
-            }
-
-            if (s->left->color == 0 && s->right->color == 0) {
-                // case 3.2
-                s->color = 1;
-                node = node->parent;
-            } else {
-                if (s->right->color == 0) {
-                    // case 3.3
-                    s->left->color = 0;
-                    s->color = 1;
-                    rightRotate(s);
-                    s = node->parent->right;
-                }
-
-                // case 3.4
-                s->color = node->parent->color;
-                node->parent->color = 0;
-                s->right->color = 0;
-                leftRotate(node->parent);
-                node = root;
-            }
+    if (node == this->root) {
+        return;
+    }
+    NodePtr s, p;
+    p = node->parent;
+    if (node == p->left) {
+        s = p->right;
+    } else {
+        s = p->left;
+    }
+    if (s == this->NIL) { //CHECK CORECTENESS
+        if (p->color == 1) {
+            p->color = 0;
         } else {
-            s = node->parent->left;
-            if (s->color == 1) {
-                // Mirror case 3.1
-                s->color = 0;
-                node->parent->color = 1;
-                rightRotate(node->parent);
-                s = node->parent->left;
-            }
-
-            if (s->right->color == 0 && s->right->color == 0) {
-                // Mirror case 3.2
+            //Pass DB to parent
+            rebalance_delete(p);
+        }
+        return;
+    } else {
+        if (s->color == 0) {
+            if (s->left->color == 0 && s->right->color == 0) {
                 s->color = 1;
-                node = node->parent;
-            } else {
-                if (s->left->color == 0) {
-                    // Mirror case 3.3
-                    s->right->color = 0;
-                    s->color = 1;
-                    leftRotate(s);
-                    s = node->parent->left;
+                if (p->color) {
+                    p->color = 0;
+                    return;
+                } else {
+                    rebalance_delete(p);
+                    return;
                 }
-
-                // Mirror case 3.4
-                s->color = node->parent->color;
-                node->parent->color = 0;
-                s->left->color = 0;
-                rightRotate(node->parent);
-                node = root;
+            }
+            else if (s == p->right) {
+                if (s->left->color == 1) {
+                    s->color = 1;
+                    s->left->color = 0;
+                    rightRotate(s);
+                    rebalance_delete(node);
+                    return;
+                } else {
+                    bool temp = p->color;
+                    p->color = s->color;
+                    s->color = temp;
+                    leftRotate(p);
+                    s->right->color = 0;
+                }
+            } else {
+                  if (s->right->color == 1) {
+                      s->color = 1;
+                      s->right->color = 0;
+                      leftRotate(s);
+                      rebalance_delete(node);
+                      return;
+                  } else {
+                      bool temp = p->color;
+                      p->color = s->color;
+                      s->color = temp;
+                      rightRotate(p);
+                      s->left->color = 0;
+                      return;
+                  }
             }
         }
+        else {
+            s->color = 0;
+            p->color = 1;
+            if (s == p->left) {
+                rightRotate(p);
+            } else {
+                leftRotate(p);
+            }
+            rebalance_delete(node);
+        }
     }
-    node->color = 0;
 }
 
 unsigned long int Rb_tree::size() {
@@ -348,4 +367,40 @@ bool Rb_tree::empty() {
     } else {
         return true;
     }
+}
+
+void Rb_tree::iterate() {
+    this->queue.push(this->root);
+}
+
+NodePtr Rb_tree::next() {
+    NodePtr n;
+    if (!this->queue.empty()) {
+        n = this->queue.front();
+        this->queue.pop();
+        if (n->left != this->NIL) {
+            this->queue.push(n->left);
+        }
+        if (n->right != this->NIL) {
+            this->queue.push(n->right);
+        }
+        return n;
+    } else {
+        return this->NIL;
+    }
+}
+
+std::vector<unsigned long int> Rb_tree::bfs(){
+    std::vector<unsigned long int> node_keys;
+    NodePtr n;
+    if (this->tree_size == 0) {
+        return node_keys;
+    }
+    iterate();
+    n = next();
+    while (n != this->NIL) {
+        node_keys.push_back(n->key);
+        n = next();
+    }
+    return node_keys;
 }

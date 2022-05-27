@@ -52,6 +52,10 @@ bool Graph::is_connected(unsigned long v, unsigned long w) {
     return this->adj_matrix[v].is_present(w);
 }
 
+bool Graph::is_empty(unsigned long v) {
+    return this->adj_matrix[v].empty();
+}
+
 bool Graph::link(unsigned long v, unsigned long w) {
     if(!is_connected(v, w)){
         std::pair<unsigned long int, unsigned long int> edge(v, w);
@@ -63,6 +67,11 @@ bool Graph::link(unsigned long v, unsigned long w) {
     else {
         return false;
     }
+}
+
+void Graph::del_link(unsigned long v, unsigned long w) {
+    this->adj_matrix[v].delete_key(w);
+    this->adj_matrix[w].delete_key(v);
 }
 
 std::vector<std::pair<unsigned long int, unsigned long int>> Graph::get_links_vector() {
@@ -81,6 +90,9 @@ std::vector<unsigned long int> Graph::get_degrees() {
     return dist;
 }
 
+std::vector<unsigned long int> Graph::get_neighbors(unsigned long v) {
+    return  this->adj_matrix[v].bfs();
+}
 unsigned long int Graph::get_N() {
     return this->N;
 }

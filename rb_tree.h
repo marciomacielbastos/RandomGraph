@@ -1,6 +1,8 @@
 #ifndef RB_TREE_H
 #define RB_TREE_H
 #include <map>
+#include <queue>
+#include <vector>
 
 // data structure that represents a node in the tree
 //struct Node {
@@ -25,14 +27,17 @@ private:
     NodePtr root;
     NodePtr NIL;
     unsigned long int tree_size;
+    void destroy_recursive(NodePtr node);
     void leftRotate(NodePtr x);
     void rightRotate(NodePtr x);
     void rebalance_insert(NodePtr node);
     void rebalance_delete(NodePtr node);
-    void transplant(NodePtr u, NodePtr v);
-    void destroy_recursive(NodePtr node);
-    NodePtr search_tree(NodePtr node, unsigned long int key);
+    void swap_keys(NodePtr v, NodePtr u);
+    void transplant(NodePtr u, NodePtr v);  
     NodePtr build_node(unsigned long int key);
+    NodePtr replacement(NodePtr node);
+    NodePtr search_tree(NodePtr node, unsigned long int key);   
+    std::queue<NodePtr> queue;
 
 
 public:
@@ -45,8 +50,14 @@ public:
     NodePtr maximum(NodePtr node);
     NodePtr minimum(NodePtr node);
     NodePtr search(unsigned long int key);
+    NodePtr next();
     unsigned long int size();
-    void delete_node(unsigned long int key);
+    void delete_key(unsigned long int key);
+    void delete_node(NodePtr v);
+    void iterate();
+    std::vector<unsigned long int> bfs();
+
+
 };
 
 #endif // RB_TREE_H
