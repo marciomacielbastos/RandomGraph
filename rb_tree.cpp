@@ -12,8 +12,26 @@ Rb_tree::Rb_tree() {
 }
 
 void Rb_tree::destroy_recursive(NodePtr node) {
-    if (node->left != this->NIL) delete node->left;
-    if (node->right != this->NIL) delete node->right;
+    if (node == this->NIL){
+        return;
+    }
+    if (node->left == this->NIL && node->right == this->NIL) {
+        node = nullptr;
+        delete node;
+        return;
+    }
+    if (node->left != this->NIL) {
+        destroy_recursive(node->left);
+        node = nullptr;
+        delete node;
+        return;
+    }
+    if (node->right != this->NIL){
+        destroy_recursive(node->right);
+        node = nullptr;
+        delete node;
+        return;
+    }
 }
 
 Rb_tree::~Rb_tree() {

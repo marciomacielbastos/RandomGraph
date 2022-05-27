@@ -177,10 +177,10 @@ int main(int argc, char** argv) {
     /*            Parameters          */
     /**********************************/
     double lambda = 100;
-    double gamma = 2.5;
+    double gamma = 4.5;
     double begin = 0;
     double end = 0;
-    unsigned long int  kmin = 1;
+    unsigned long int  kmin = 2;
     unsigned long int N = 512;
     unsigned long int num_rep = 1;
     unsigned long int from = 0;
@@ -243,7 +243,7 @@ int main(int argc, char** argv) {
     std::cout << "source: (" << source << ")"<< std::endl;
     std::cout << "output: (" << output << ")"<< std::endl;
 //    degrees_writing(lambda, gamma, kmin, N, num_rep, from, source, output);
-//    graph_generation(lambda, gamma, kmin, N, num_rep, from, n_threads, output);
-    random_attack(lambda, gamma, kmin, N, num_rep, from, begin, end, source, output);
+    graph_generation(lambda, gamma, kmin, N, num_rep, from, n_threads, output);
+//    random_attack(lambda, gamma, kmin, N, num_rep, from, begin, end, source, output);
 }
 

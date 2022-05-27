@@ -40,7 +40,7 @@ public:
     Graph generate_graph(std::vector<unsigned long int> degrees_vector);
     Graph generate_graph();
     void graph_build_and_save(unsigned int id);
-    void write_degrees (Graph G, std::string filepath);
+    void write_degrees (Graph &G, std::string filepath);
     void set_degrees_folder(std::string folder);
     void set_graph_folder(std::string folder);
 
