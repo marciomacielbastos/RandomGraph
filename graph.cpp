@@ -29,6 +29,9 @@ void Graph::read_file(std::string filename, char delimiter) {
                 edge[i] = std::stoul(item);
                 i++;
             }
+//            if (edge[0] == 64 && edge[1] == 44) {
+//                int a = 0;
+//            }
             link(edge[0], edge[1]);
       }
       myfile.close();

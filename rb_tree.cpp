@@ -59,6 +59,9 @@ NodePtr Rb_tree::search(unsigned long int k) {
 }
 
 bool Rb_tree::is_present(unsigned long key) {
+//    if (this->tree_size == 0) {
+//        return false;
+//    }
     if (search(key) != this->NIL) {
         return true;
     }

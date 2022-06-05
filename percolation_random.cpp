@@ -63,7 +63,7 @@ unsigned long int Percolation_random::calculate_maximal_component_size(unsigned 
     unsigned long int w;
     std::vector<unsigned long int> w_list;
     for (unsigned long int v = 0; v < N; v++) {
-        if (G.is_empty(v)) {
+        if (!G.is_empty(v)) {
             w_list = G.get_neighbors(v);
             while (!w_list.empty()) {
                 w = w_list.back();

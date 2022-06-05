@@ -176,15 +176,15 @@ int main(int argc, char** argv) {
     /**********************************/
     /*            Parameters          */
     /**********************************/
-    double lambda = 100;
-    double gamma = 4.5;
-    double begin = 0;
-    double end = 0;
+    double lambda = 1;
+    double gamma = 3.7;
+    double begin = 0.6;
+    double end = 1;
     unsigned long int  kmin = 2;
-    unsigned long int N = 512;
+    unsigned long int N = 100;
     unsigned long int num_rep = 1;
     unsigned long int from = 0;
-    std::string source = "./";
+    std::string source = "/home/marcio/Projects/RandomGraph/output/Teste/";
     std::string output = "./";
     unsigned long int n_threads = 1;
     /**********************************/
@@ -243,7 +243,7 @@ int main(int argc, char** argv) {
     std::cout << "source: (" << source << ")"<< std::endl;
     std::cout << "output: (" << output << ")"<< std::endl;
 //    degrees_writing(lambda, gamma, kmin, N, num_rep, from, source, output);
-    graph_generation(lambda, gamma, kmin, N, num_rep, from, n_threads, output);
-//    random_attack(lambda, gamma, kmin, N, num_rep, from, begin, end, source, output);
+//    graph_generation(lambda, gamma, kmin, N, num_rep, from, n_threads, output);
+    random_attack(lambda, gamma, kmin, N, num_rep, from, begin, end, source, output);
 }
 
