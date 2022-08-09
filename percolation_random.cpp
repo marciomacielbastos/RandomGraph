@@ -33,13 +33,13 @@ void Percolation_random::smart_pop(std::vector<unsigned long> &vect, unsigned lo
     vect.pop_back();
 }
 
-void Percolation_random::remove_node_from_neighborhood(std::vector<unsigned long> &neighborhood, unsigned long int node) {
-    for (unsigned long int idx = 0; idx < neighborhood.size(); ++idx) {
-        if (neighborhood[idx] == node) {
-           smart_pop(neighborhood, idx);
-        }
-    }
-}
+//void Percolation_random::remove_node_from_neighborhood(std::vector<unsigned long> &neighborhood, unsigned long int node) {
+//    for (unsigned long int idx = 0; idx < neighborhood.size(); ++idx) {
+//        if (neighborhood[idx] == node) {
+//           smart_pop(neighborhood, idx);
+//        }
+//    }
+//}
 
 double Percolation_random::calculate_mean(std::vector<unsigned long int>& values_vector) {
     double mean = 0;

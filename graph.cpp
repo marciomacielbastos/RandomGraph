@@ -94,7 +94,7 @@ std::vector<unsigned long int> Graph::get_degrees() {
 }
 
 std::vector<unsigned long int> Graph::get_neighbors(unsigned long v) {
-    return  this->adj_matrix[v].bfs();
+    return this->adj_matrix[v].bfs();
 }
 unsigned long int Graph::get_N() {
     return this->N;
